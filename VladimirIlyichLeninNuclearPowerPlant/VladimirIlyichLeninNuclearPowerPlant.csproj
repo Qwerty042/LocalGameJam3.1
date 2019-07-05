@@ -41,9 +41,14 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ControlRod.cs" />
     <Compile Include="Game1.cs" />
+    <Compile Include="PowerGrid.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Pump.cs" />
+    <Compile Include="ReactorCore.cs" />
+    <Compile Include="Turbine.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">
