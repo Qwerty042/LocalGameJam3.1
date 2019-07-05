@@ -1,0 +1,99 @@
+﻿### Simulated features
+Core Nuclear
+- Xenon (2D)
+- Fast/slow neutron flux(2D)
+- Prompt/delayed reaction speed(2D) 
+- Indicated reactor power(scaler)
+- Temperature (2D)
+- Reactor water flow/resistance/boiling (2D)
+- Control rod simulation(2D)
+Non-nuclear
+- Inlet temp (scaler)
+- Outlet temp (scaler)
+- Feedwater pump(scaler)
+- Inlet/reactor/outlet pressure(scaler, assumed uniform)
+- Steam seperator boiling(scaler)
+- Steam seperator pressure(scaler)
+- Turbine power (scaler)
+
+
+Reactor is 5x5 cell grid
+
+#---#---#---#---#---#
+|   |   |   |   |   |
+#---#---#---#---#---#
+|   |   |   |   |   |
+#---#---#---#---#---#
+|   |   |   |   |   |
+#---#---#---#---#---#
+|   |   |   |   |   |
+#---#---#---#---#---#
+|   |   |   |   |   |
+#---#---#---#---#---#
+Control rod simulation
+- control rod/graphite tip/water can either completely or partialy fill a cell, changing its absorbtion and moderation.
+- control rods consist of 5-cell long boron, with a 1-unit gap, followed by a 3 unit long graphite 'tip'. once fully withdrawn, the graphite 'tip' fills the center 3 cells of the reactor
+
+Neutron simulation (instant, only dependant on values at current time):
+1. Emitted proportional to reaction speed
+2. Moderated proportional to moderation of cell(converts fast -> slow)
+3. Absorbed proportional to non-reactive and reactive absorbtion (strong effect on slow, weak effect on fast)
+4. Unabsorbed neutron flux (fast/slow) travels to adjacent cells evenly (and again moderated and absorbed)
+5. Reactive absorbtion feeds back to reaction speed(fast decay effects only next time step, slow works over time)
+
+Moderation simulation
+- Whether cell has water, control rod, steam(empty), or graphite tip effects moderation
+
+Absorbtion simulation
+- Whether cell has water, control rod, steam(empty), graphite tip, or xenon poisioning effects non-reactive absorbtion
+- Temperature effects reactive absorbtion
+
+Temperature simulation
+- Reaction speed increased temperature
+- Temperature transfered to water and adjacent cells depending on thermal conductivity and temp difference
+
+Xenon simulation
+- Reactivity creates pre-xenon products over time
+- Pre-xenon products exibit first-order decay to Xenon
+- Xenon exibits first order slow natural decay, and first order fast decay based on nuetron flux
+
+Prompt/slow deccay simulation
+- Each time step reactivity creates prompt neutrons, and decay products
+- Decay products exhibit first order decay over time and release delayed neutrons
+
+Reactor power
+- Nuetron flux measured at a number of cells will be used to estimate average reactor power
+#---#---#---#---#---#
+|   |   |   |   |   |
+#---#---#---#---#---#
+|   | X |   | X |   |
+#---#---#---#---#---#
+|   |   |   |   |   |
+#---#---#---#---#---#
+|   | X |   | X |   |
+#---#---#---#---#---#
+|   |   |   |   |   |
+#---#---#---#---#---#
+
+Reactor water simulation
+- Flow speed based on loop pressure
+- Water enters bottom cell at inlet temp, and moves upwards in columns from cell-to-cell based on flow speed/resistance
+- If water gets too hot (dependant on pressure and temp) it will boil
+- Steam increases flow resistance, and effects moderation/absorbtion
+
+Inlet temp
+- Based on temp in steam seperator
+
+Outlet temp
+- Based on weighted average of temperature after water travels through reactor
+
+Steam seperator simluation
+- Water enters steam seperator and pressure drops
+- Temperature and pressure in seperator lead to boiling, effecting pressure and temperature(endothermic)
+- Boiling sends steam to turbine
+- Water returns from turbine at ~100C
+
+Turbine power
+- Steam enters turbine and turbine power exhibits fast first order response to steam flow
+- Turbine speed can go from 0 to operating speed. No power is generated below operating speed, so turbine must be spun up before operation
+- Steam condenses after turbine and returns at ~100C
