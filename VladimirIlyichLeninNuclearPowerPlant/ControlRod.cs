@@ -10,18 +10,23 @@ namespace VladimirIlyichLeninNuclearPowerPlant
 {
     class ControlRod
     {
-        public Rectangle rodRectangle;
-        private Rectangle controlRodSlot;
-        private int minY;
-        private int maxY;
+        private readonly Rectangle controlRodSlot;
+        private readonly int minY;
+        private readonly int maxY;
 
-        public int InsertedPercentage { get; private set; }
+        private bool? dragging = null;
+        private bool prevLeftClickPressed = false;
+        private int dragYOffset;
+        private Point prevMousePosition;
+
+        public Rectangle rectangle;
+        public int insertedPercentage;
 
 
         public ControlRod(Rectangle _controlRodSlot, Point _controlRodSize)
         {
             controlRodSlot = _controlRodSlot;
-            rodRectangle = new Rectangle(_controlRodSlot.Location, _controlRodSize);
+            rectangle = new Rectangle(_controlRodSlot.Location, _controlRodSize);
             minY = _controlRodSlot.Top;
             maxY = _controlRodSlot.Bottom - _controlRodSize.Y;
         }
@@ -29,22 +34,60 @@ namespace VladimirIlyichLeninNuclearPowerPlant
 
         public void Update(Point mousePosition)
         {
-            if (Mouse.GetState().LeftButton == ButtonState.Pressed && controlRodSlot.Contains(mousePosition))
+            //if (Mouse.GetState().LeftButton == ButtonState.Pressed && controlRodSlot.Contains(mousePosition))
+            //{
+            //    mousePosition.Y -= 10;
+            //    if (mousePosition.Y > maxY)
+            //    {
+            //        rectangle.Y = maxY;
+            //    }
+            //    else if (mousePosition.Y < minY)
+            //    {
+            //        rectangle.Y = minY;
+            //    }
+            //    else
+            //    {
+            //        rectangle.Y = mousePosition.Y;
+            //    }
+            //}
+
+            if (Mouse.GetState().LeftButton == ButtonState.Released)
             {
-                mousePosition.Y -= 10;
-                if (mousePosition.Y > maxY)
+                dragging = false;
+            }
+            else if (dragging != true)
+            {
+                if (rectangle.Contains(mousePosition) && dragging != null)
                 {
-                    rodRectangle.Y = maxY;
-                }
-                else if (mousePosition.Y < minY)
-                {
-                    rodRectangle.Y = minY;
+                    dragging = true;
+                    dragYOffset = mousePosition.Y - rectangle.Y;
                 }
                 else
                 {
-                    rodRectangle.Y = mousePosition.Y;
+                    dragging = null;
+                }
+            }
+
+            if (dragging == true)
+            {
+                int dragYPos = mousePosition.Y - dragYOffset;
+
+                if (dragYPos > maxY)
+                {
+                    rectangle.Y = maxY;
+                }
+                else if (dragYPos < minY)
+                {
+                    rectangle.Y = minY;
+                }
+                else
+                {
+                    rectangle.Y = dragYPos;
                 }
             }
         }
+
+
+
     }
 }

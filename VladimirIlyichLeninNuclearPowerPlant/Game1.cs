@@ -19,9 +19,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-
-        MouseCursor mouseCursor;
-
+        
         List<ControlRod> controlRods;
 
         public Game1()
@@ -130,7 +128,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             //Draw all controll rods
             foreach (ControlRod rod in controlRods)
             {
-                spriteBatch.Draw(controlRodTexture, rod.rodRectangle, Color.White);
+                spriteBatch.Draw(controlRodTexture, rod.rectangle, Color.White);
             }
             
             //**********************   TEMP CODE   *****************************
