@@ -39,6 +39,11 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             insertedPercentage = 100;
         }
 
+        public void scram()
+        {
+            targetRectangle.Y = maxY;
+        }
+
 
         public void Update(Point mousePosition, GameTime gameTime)
         {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 using VladimirIlyichLeninNuclearPowerPlant.Simulation;
 
@@ -17,6 +18,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         Texture2D turbineTexture;
         Texture2D pumpTexture;
         Texture2D cursorTexture;
+        Texture2D az5Texture;
 
         SpriteFont defaultFont;
 
@@ -26,6 +28,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         SpriteBatch spriteBatch;
         
         List<ControlRod> controlRods;
+        Rectangle az5Rectangle;
         Plant plant;
 
         public Game1()
@@ -57,7 +60,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
 
             controlRods = new List<ControlRod>();
 
-            plant = new Plant(controlRods);
+            plant = new Plant(controlRods, new StandardConstants());
 
 
             base.Initialize();
@@ -81,6 +84,9 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             controlRodTargetTexture = Content.Load<Texture2D>("controlRodTarget");
             turbineTexture = Content.Load<Texture2D>("turbine");
             pumpTexture = Content.Load<Texture2D>("pump");
+            az5Texture = Content.Load<Texture2D>("AZ-5");
+
+            az5Rectangle = new Rectangle(2000, 20, az5Texture.Width, az5Texture.Height);
 
             defaultFont = Content.Load<SpriteFont>("Arial");
             //Create control rod instances and add to list of control rods
@@ -111,6 +117,16 @@ namespace VladimirIlyichLeninNuclearPowerPlant
 
             //Convert mouse position to game world coorinates
             Point gameMousePos = Vector2.Transform(Mouse.GetState().Position.ToVector2(), Matrix.Invert(scaleMatrix)).ToPoint();
+            if (az5Rectangle.Contains(gameMousePos))
+            {
+                if(Mouse.GetState().LeftButton == ButtonState.Pressed)
+                {
+                    foreach (ControlRod rod in controlRods)
+                    {
+                        rod.scram();
+                    }
+                }
+            }
 
             //Update all control rods
             foreach (ControlRod rod in controlRods)
@@ -150,6 +166,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                 }
             }
 
+            spriteBatch.Draw(az5Texture, new Rectangle(2000, 20, az5Texture.Width, az5Texture.Height), Color.White);
             //**********************   TEMP CODE   *****************************
             //spriteBatch.Draw(controlRodTexture, new Rectangle(1497, 509, controlRodTexture.Width, controlRodTexture.Height), Color.White);
             //for (int i = 0; i < 5; i++)
@@ -162,8 +179,11 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             //******************************************************************
             for (int i = 0; i < 5; i++)
             {
-                Cell cell = plant.core.cells[0, i];
-                spriteBatch.DrawString(defaultFont, $"Cell [0,{i}]: Rod: {(int)cell.RodPercent}, Graphite: {(int)cell.GraphitePercent}, Water: {(int)cell.WaterPercent} ", new Vector2(0,30*i), Color.Red);
+                for (int j = 0; j < 5; j++)
+                {
+                    Cell cell = plant.core.cells[j, i];
+                    spriteBatch.DrawString(defaultFont, $"Cell [{j},{i}]: temp:{Math.Round(cell.Temp, 3)},promptFlux = {Math.Round(cell.PromptRate, 3)}, delayedFlux = {Math.Round(cell.DelayedFlux, 3)}, moderation = {Math.Round(cell.ModerationPercent, 3)},nonreactive = {Math.Round(cell.NonReactiveAbsorbtionPercent, 3)} , reactive = {Math.Round(cell.ReactiveAbsorbtionPercent, 3)}, xenon = {Math.Round(cell.Xenon, 3)}, prexenon = {Math.Round(cell.PreXenon, 3)}", new Vector2(0, 30 * (i+ 5*j)), Color.Red);
+                }
             }
             spriteBatch.End();
 

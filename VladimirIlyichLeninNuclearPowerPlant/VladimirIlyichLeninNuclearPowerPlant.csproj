@@ -49,8 +49,9 @@
     <Compile Include="Pump.cs" />
     <Compile Include="ReactorCore.cs" />
     <Compile Include="Simulation\Cell.cs" />
-    <Compile Include="Simulation\Constants.cs" />
+    <Compile Include="Simulation\StandardConstants.cs" />
     <Compile Include="Simulation\Core.cs" />
+    <Compile Include="Simulation\IGameConstants.cs" />
     <Compile Include="Simulation\Plant.cs" />
     <Compile Include="Turbine.cs" />
   </ItemGroup>

@@ -10,10 +10,12 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
     class Plant
     {
         public Core core { get; }
+        IGameConstants constants;
 
-        public Plant(List<ControlRod> controlRods)
+        public Plant(List<ControlRod> controlRods, IGameConstants constants)
         {
-            core = new Core(controlRods);
+            this.constants = constants;
+            core = new Core(controlRods, constants);
         }
 
         public void update(GameTime gameTime)
