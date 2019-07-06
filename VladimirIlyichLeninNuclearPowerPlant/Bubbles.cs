@@ -150,7 +150,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                 }
             }
 
-            List<int> deadBubbleIndicies = new List<int>();
+            List<Bubble> deadBubbles = new List<Bubble>();
 
             foreach (Bubble bubble in BubblesList)
             {
@@ -164,15 +164,15 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                     bubble.NextWaypointIndex++;
                     if (bubble.NextWaypointIndex >= pipe.Waypoints.Length)
                     {
-                        deadBubbleIndicies.Add(BubblesList.IndexOf(bubble));
+                        deadBubbles.Add(bubble);
                         bubble.NextWaypointIndex--;
                     }
                 }
             }
 
-            foreach (int index in deadBubbleIndicies)
+            foreach (var bubble in deadBubbles)
             {
-                BubblesList.RemoveAt(index);
+                BubblesList.Remove(bubble);
             }
         }
     }
