@@ -10,6 +10,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
     {
         public double PromptRate { get; set; } = 0;
         public double DelayedFlux { get; set; } = 0;//amount of 'saved up' flux
+        public double DelayedRate { get; set; } = 0;//for display purposes
         public double[] FastFlux { get; set; } = new double[4];//0 = up, 1 = right, 2 = down, 3 = left
         public double[] SlowFlux { get; set; } = new double[4];//0 = up, 1 = right, 2 = down, 3 = left
         public double PreXenon { get; set; } = 0;

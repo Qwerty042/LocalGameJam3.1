@@ -12,10 +12,10 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
         List<ControlRod> controlRods;
         IGameConstants constants;
 
-        private double _InletTemp;
+        private double _InletTemp = 200;
         public double InletTemp { set { _InletTemp = value; } }
 
-        private double _InletPressure;
+        private double _InletPressure = 10;//bar
         public double InletPressure { set { _InletPressure = value; } }
 
         public double InletFlow { get; }
@@ -52,6 +52,8 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
                 updateControlRodStatus();
                 performNeutronSimulation(deltaT);
                 updateXenon(deltaT);
+                transferTemp(deltaT);
+                waterFlowSim(deltaT);
             }
         }
 
@@ -119,10 +121,11 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
             {
                 var emittedDelayedFlux = cell.DelayedFlux * deltaT / constants.DelayedCriticalityTimeConstant;
                 cell.DelayedFlux -= emittedDelayedFlux;
+                cell.DelayedRate = emittedDelayedFlux / deltaT;
 
                 var totalFlux = constants.SpontaneousFlux * deltaT + emittedDelayedFlux + cell.PromptRate * deltaT;
                 cell.PreXenon += totalFlux * constants.PreXenonProductionRateCoefficient;
-                //cell.Temp += totalFlux * constants.ReactivityThermalGenerationCoefficient;
+                cell.Temp += totalFlux * constants.ReactivityThermalGenerationCoefficient;
                 cell.PromptRate = 0;
                 for (int i = 0; i < 4; i++)
                 {
@@ -159,23 +162,27 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
                     + constants.GraphiteAbsorptionCoefficient * cell.GraphitePercent / 100
                     + constants.FeedWaterAbsorptionCoefficient * (100 - cell.SteamPercent) / 100
                     + constants.ControlWaterAbsorptionCoefficient * cell.WaterPercent / 100
-                    + constants.BoronAbsorptionCoefficient * cell.RodPercent / 100
-                    + constants.XenonAbsorptionCoefficent * (1 - Math.Pow(0.25,cell.Xenon/4));
-                var xenonAbsoptionAmount = constants.XenonAbsorptionCoefficent * (1 - Math.Pow(0.25, cell.Xenon / 4)) * (1 + (cell.Temp - 200) * constants.TemperatureAbsorptionCoefficient);
+                    + constants.BoronAbsorptionCoefficient * cell.RodPercent / 100;
 
                 totalAbsorptionCoefficent *= 1 + (cell.Temp - 200) * constants.TemperatureAbsorptionCoefficient;
 
                 cell.NonReactiveAbsorbtionPercent = totalAbsorptionCoefficent * 100;
-                double absorbed = 0;
 
                 for (int i = 0; i < 4; i++)
                 {
-                    absorbed += cell.FastFlux[i] * (totalAbsorptionCoefficent * constants.FastAbsorptionMultiplier) + cell.SlowFlux[i] * totalAbsorptionCoefficent;
                     cell.FastFlux[i] *= 1 - (totalAbsorptionCoefficent * constants.FastAbsorptionMultiplier);
                     cell.SlowFlux[i] *= 1 - totalAbsorptionCoefficent;
                 }
-                var xenonAbsorbed = absorbed * xenonAbsoptionAmount /totalAbsorptionCoefficent;
-                cell.Xenon -= xenonAbsorbed * constants.XenonBuringRateCoefficent;
+
+                var xenonAbsorption = 1 - Math.Pow(1-constants.XenonAbsorptionCoefficent, cell.Xenon);
+                double absorbed = 0;
+                for (int i = 0; i < 4; i++)
+                {
+                    absorbed += cell.FastFlux[i] * (xenonAbsorption * constants.FastAbsorptionMultiplier) + cell.SlowFlux[i] * xenonAbsorption;
+                    cell.FastFlux[i] *= 1 - (xenonAbsorption * constants.FastAbsorptionMultiplier);
+                    cell.SlowFlux[i] *= 1 - xenonAbsorption;
+                }
+                cell.Xenon -= absorbed * constants.XenonBuringRateCoefficent;
             }
         }
 
@@ -220,7 +227,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
             //right flux
             for (int i = 3; i >= 0; i--)
             {
-                for (int j = 1; j < 5; j++)
+                for (int j = 0; j < 5; j++)
                 {
                     cells[i + 1, j].FastFlux[1] = cells[i, j].FastFlux[1];
                     cells[i + 1, j].SlowFlux[1] = cells[i, j].SlowFlux[1];
@@ -270,6 +277,47 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
                 cell.Xenon += amountConvertedToXenon;
                 var amountDecayedFromXenon = cell.Xenon * deltaT / constants.XenonDecayTimeConstant;
                 cell.Xenon -= amountDecayedFromXenon;
+            }
+        }
+
+        void transferTemp(double deltaT)
+        {
+            foreach (var cell in cells)
+            {
+                var transferEnergy = (cell.Temp - cell.WaterTemp) * constants.FeedwaterThermalTransferCoefficient;
+                cell.Temp -= transferEnergy / constants.ReactorThermalCapacity;
+                cell.WaterTemp += transferEnergy / constants.FeedwaterThermalCapacity;
+            }
+        }
+
+
+        void waterFlowSim(double deltaT)
+        {
+            foreach (var cell in cells)
+            {
+                cell.WaterResistance = 0.1;
+            }
+
+            for(int i = 0; i<5; i++)
+            {
+                double sumResistance = 0;
+                for (int j = 0; j < 5; j++)
+                {
+                    sumResistance += cells[i, j].WaterResistance;
+                }
+                var flow = _InletPressure / sumResistance;
+                for (int j = 0; j < 5; j++)
+                {
+                    cells[i,j].WaterFlow = flow;
+                }
+            }
+
+
+            foreach (var cell in cells)
+            {
+                var transferEnergy = (cell.Temp - cell.WaterTemp) * constants.FeedwaterThermalTransferCoefficient;
+                cell.Temp -= transferEnergy / constants.ReactorThermalCapacity;
+                cell.WaterTemp += transferEnergy / constants.FeedwaterThermalCapacity;
             }
         }
 
