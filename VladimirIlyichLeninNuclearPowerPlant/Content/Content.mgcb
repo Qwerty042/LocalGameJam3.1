@@ -20,6 +20,18 @@
 /processorParam:TextureFormat=Compressed
 /build:Arial.spritefont
 
+#begin AZ-5.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:AZ-5.png
+
 #begin bubble.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -55,18 +67,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:bubbleStrip.png
-
-#begin AZ-5.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:AZ-5.png
 
 #begin comradeCursor.png
 /importer:TextureImporter
@@ -115,6 +115,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:plant.png
+
+#begin plantBubbleClip.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:plantBubbleClip.png
 
 #begin pump.png
 /importer:TextureImporter
