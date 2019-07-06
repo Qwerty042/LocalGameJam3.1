@@ -31,6 +31,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         public float FlowVelocity { get; set; }
         public Color BubbleColor { get; set; }
         //public float BubbleFreq { get; set; }
+        public double LastBubbleSpawn { get; set; }
 
         public Pipe(Vector2[] waypoints, float flowVelocity, Color bubbleColor/*, float bubleFreq*/)
         {
@@ -38,6 +39,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             FlowVelocity = flowVelocity;
             BubbleColor = bubbleColor;
             //BubbleFreq = bubleFreq;
+            LastBubbleSpawn = 0;
         }
     }
 
@@ -48,26 +50,89 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         private Dictionary<string, Pipe> pipes;
 
         private float bubbleFreq = 20f;
-        private double prevTotalSeconds = 0;
+        //private double prevTotalSeconds = 0;
         private int offsetRange = 14;
         private Random rand = new Random();
 
-        //Waypoints: (551,1578)->(822,1578)->(822,826)->(1077,826)->(1077,1498)->(1460,1498)
-        private readonly Vector2[] testPath = new Vector2[]
+        private readonly Vector2[] pumpLeftPath = new Vector2[]
         {
-            new Vector2(551, 1578),
-            new Vector2(822, 1578),
-            new Vector2(822, 826),
             new Vector2(1077, 826),
             new Vector2(1077, 1498),
             new Vector2(1460, 1498),
         };
 
+        private readonly Vector2[] pumpRightPath = new Vector2[]
+        {
+            new Vector2(2116, 838),
+            new Vector2(2116, 1500),
+            new Vector2(1728, 1500),
+        };
+
+        private readonly Vector2[] coreSteamLeftPath = new Vector2[]
+        {
+            new Vector2(1460, 952),
+            new Vector2(1147, 952),
+            new Vector2(1147, 826),
+        };
+
+        private readonly Vector2[] coreSteamRightPath = new Vector2[]
+        {
+            new Vector2(1728, 952),
+            new Vector2(2050, 952),
+            new Vector2(2050, 838),
+        };
+
+        private readonly Vector2[] turbineSteamLeftPath = new Vector2[]
+        {
+            new Vector2(1078, 826),
+            new Vector2(1078, 661),
+            new Vector2(763, 661),
+            new Vector2(763, 1186),
+            new Vector2(345, 1186),
+            new Vector2(345, 1362),
+        };
+
+        private readonly Vector2[] turbineSteamRightPath = new Vector2[]
+        {
+            new Vector2(2116, 838),
+            new Vector2(2116, 661),
+            new Vector2(763, 661),
+            new Vector2(763, 1186),
+            new Vector2(345, 1186),
+            new Vector2(345, 1362),
+        };
+
+        private readonly Vector2[] turbineWaterLeftPath = new Vector2[]
+        {
+            new Vector2(551, 1578),
+            new Vector2(822, 1578),
+            new Vector2(822, 826),
+            new Vector2(1077, 826),
+        };
+
+        private readonly Vector2[] turbineWaterRightPath = new Vector2[]
+        {
+            new Vector2(551, 1578),
+            new Vector2(822, 1578),
+            new Vector2(822, 720),
+            new Vector2(2237, 720),
+            new Vector2(2237, 838),
+            new Vector2(2116, 838),
+        };
+
+
         public Bubbles()
         {
             pipes = new Dictionary<string, Pipe>
             {
-                { "testPath", new Pipe(testPath, 200f, new Color(50, 111, 200)/*, bubbleFreq*/) },
+                { "pumpLeftPath", new Pipe(pumpLeftPath, 400f, new Color(255, 0, 0))},
+                { "pumpRightPath", new Pipe(pumpRightPath, 400f, new Color(0, 255, 0))},
+                { "coreSteamLeftPath", new Pipe(coreSteamLeftPath, 400f, new Color(0, 0, 255))},
+                { "coreSteamRightPath", new Pipe(coreSteamRightPath, 400f, new Color(255, 255, 0))},
+                { "turbineSteamLeftPath", new Pipe(turbineSteamLeftPath, 400f, new Color(0, 255, 255))},
+                { "turbineSteamRightPath", new Pipe(turbineSteamRightPath, 400f, new Color(255, 0, 255))},
+                { "turbineWaterLeftPath", new Pipe(turbineWaterLeftPath, 400f, new Color(255, 255, 255))},
+                { "turbineWaterRightPath", new Pipe(turbineWaterRightPath, 400f, new Color(0, 0, 0))},
             };
             BubblesList = new List<Bubble>();
         }
@@ -76,12 +141,12 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         {
             foreach (KeyValuePair<string, Pipe> pipe in pipes)
             {
-                double elapsedTime = gameTime.TotalGameTime.TotalSeconds - prevTotalSeconds;
-                if (elapsedTime > (1/bubbleFreq))
+                double elapsedTime = gameTime.TotalGameTime.TotalSeconds - pipe.Value.LastBubbleSpawn;
+                if (elapsedTime > (1 / bubbleFreq))
                 {
                     Bubble bubble = new Bubble(pipe.Value.Waypoints[0], pipe.Key, 1, new Vector2(rand.Next(-offsetRange, offsetRange + 1), rand.Next(-offsetRange, offsetRange + 1)), pipe.Value.BubbleColor);
                     BubblesList.Add(bubble);
-                    prevTotalSeconds = gameTime.TotalGameTime.TotalSeconds;
+                    pipe.Value.LastBubbleSpawn = gameTime.TotalGameTime.TotalSeconds;
                 }
             }
 
@@ -100,6 +165,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                     if (bubble.NextWaypointIndex >= pipe.Waypoints.Length)
                     {
                         deadBubbleIndicies.Add(BubblesList.IndexOf(bubble));
+                        bubble.NextWaypointIndex--;
                     }
                 }
             }
