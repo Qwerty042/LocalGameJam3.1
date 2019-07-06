@@ -185,6 +185,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                     spriteBatch.DrawString(defaultFont, $"Cell [{j},{i}]: temp:{Math.Round(cell.Temp, 3)},promptFlux = {Math.Round(cell.PromptRate, 3)}, delayedFlux = {Math.Round(cell.DelayedRate, 3)}, moderation = {Math.Round(cell.ModerationPercent, 3)},nonreactive = {Math.Round(cell.NonReactiveAbsorbtionPercent, 3)} , reactive = {Math.Round(cell.ReactiveAbsorbtionPercent, 3)}, xenon = {Math.Round(cell.Xenon, 3)}, prexenon = {Math.Round(cell.PreXenon, 3)}", new Vector2(0, 30 * (i+ 5*j)), Color.Red);
                 }
             }
+            spriteBatch.DrawString(defaultFont, $"Power: {plant.core.PowerLevel} MW", new Vector2(2400, 0), Color.Red);
             spriteBatch.End();
 
 

@@ -36,13 +36,13 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
         public double DelayedCriticalityTimeConstant { get; } = 20;
         public double DelayedCriticalityProportion { get; } = 0.02;
 
-        public double ReactivityThermalGenerationCoefficient { get; } = 0.01; // MW/flux unit
+        public double ReactivityThermalGenerationCoefficient { get; } = 0.05; // MW/flux unit
 
         public double ReactorThermalTransferCoefficient { get; } = 0.2; // MW.K^1 per cell
         public double FeedwaterThermalTransferCoefficient { get; } = 0.1; // MW.K^1 per cell
         public double ReactorThermalCapacity { get; } = 5; // MJ/K per cell
         public double FeedwaterThermalCapacity { get; } = 0.5; // MJ/K  per cell
-        public double WaterPerCell { get; } = 0.5; // MJ/K  per cell
+        public double WaterPerCell { get; } = 0.5; // kg  per cell
 
         public double SpontaneousFlux { get; } = 0.05;//from natural, random decay
 

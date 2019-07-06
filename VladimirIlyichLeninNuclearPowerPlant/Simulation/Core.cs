@@ -18,13 +18,17 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
         private double _InletPressure = 10;//bar
         public double InletPressure { set { _InletPressure = value; } }
 
-        public double InletFlow { get; }
+        private double _InletFlow = 10;
+        public double InletFlow { get { return _InletFlow; } }
 
-        public double OutletTemp { get; }
+        private double _OutletTemp = 10;
+        public double OutletTemp { get { return _OutletTemp; } }
 
-        public double OutletFlow { get; }
+        private double _OutletFlow = 10;
+        public double OutletFlow { get { return _OutletFlow; } }
 
-        public double PowerLevel { get; }
+        private double _PowerLevel = 0;
+        public double PowerLevel { get { return _PowerLevel; } }
 
 
         public Core(List<ControlRod> controlRods, IGameConstants constants)
@@ -54,6 +58,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
                 updateXenon(deltaT);
                 transferTemp(deltaT);
                 waterFlowSim(deltaT);
+                powerEstimate();
             }
         }
 
@@ -297,8 +302,10 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
             {
                 cell.WaterResistance = 0.1;
             }
-
-            for(int i = 0; i<5; i++)
+            
+            double sumFlow = 0;
+            double sumWeightedTemp = 0;
+            for (int i = 0; i<5; i++)
             {
                 double sumResistance = 0;
                 for (int j = 0; j < 5; j++)
@@ -306,12 +313,27 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
                     sumResistance += cells[i, j].WaterResistance;
                 }
                 var flow = _InletPressure / sumResistance;
+                sumFlow += flow;
                 for (int j = 0; j < 5; j++)
                 {
                     cells[i,j].WaterFlow = flow;
+                    if (j == 0)
+                    {
+                        sumWeightedTemp += cells[i, j].WaterTemp * flow;
+                    }
+                    if (j < 4)
+                    {
+                        cells[i, j].WaterTemp = cells[i, j].WaterTemp * (1 - flow / constants.WaterPerCell * deltaT) + cells[i, j + 1].WaterTemp * (flow / constants.WaterPerCell * deltaT);
+                    }
+                    if (j == 4)
+                    {
+                        cells[i, j].WaterTemp = cells[i, j].WaterTemp * (1 - flow / constants.WaterPerCell * deltaT) + _InletTemp * (flow / constants.WaterPerCell * deltaT);
+                    }
                 }
             }
-
+            _InletFlow = sumFlow;
+            _OutletFlow = sumFlow;
+            _OutletTemp = sumWeightedTemp / sumFlow;
 
             foreach (var cell in cells)
             {
@@ -319,6 +341,11 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
                 cell.Temp -= transferEnergy / constants.ReactorThermalCapacity;
                 cell.WaterTemp += transferEnergy / constants.FeedwaterThermalCapacity;
             }
+        }
+        void powerEstimate()
+        {
+            var estimateFlux = (cells[1, 1].DelayedRate + cells[1, 1].PromptRate + cells[1, 3].DelayedRate + cells[1, 3].PromptRate + cells[3, 1].DelayedRate + cells[3, 1].PromptRate + cells[3, 3].DelayedRate + cells[3, 3].PromptRate) / 4;
+            _PowerLevel = estimateFlux * 25 * constants.ReactivityThermalGenerationCoefficient;
         }
 
     }

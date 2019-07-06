@@ -42,6 +42,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
         double FeedwaterThermalTransferCoefficient { get; } // W.K^1 per cell
         double ReactorThermalCapacity { get; } // MJ/K
         double FeedwaterThermalCapacity { get; } // MJ/K
+        double WaterPerCell { get; }// kg  per cell
 
         double SpontaneousFlux { get; }//from natural, random decay
     }
