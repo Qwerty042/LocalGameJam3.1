@@ -141,8 +141,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             }
             plant.update(gameTime);
 
-            bubbles.FlowRate = (int)gameTime.TotalGameTime.TotalSeconds;
-            bubbles.Update();
+            bubbles.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -177,7 +176,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
 
             foreach (Bubble bubble in bubbles.BubblesList)
             {
-                spriteBatch.Draw(bubbleTexture, new Rectangle(bubble.Pos.X + bubble.Offset.X, bubble.Pos.Y + bubble.Offset.Y, bubbleTexture.Width, bubbleTexture.Height), null,  bubble.BubbleColor, 0f, new Vector2(bubbleTexture.Width/2, bubbleTexture.Height/2), SpriteEffects.None, 0f);
+                spriteBatch.Draw(bubbleTexture, new Rectangle((int)(bubble.Pos.X + bubble.Offset.X), (int)(bubble.Pos.Y + bubble.Offset.Y), bubbleTexture.Width, bubbleTexture.Height), null,  bubble.BubbleColor, 0f, new Vector2(bubbleTexture.Width/2, bubbleTexture.Height/2), SpriteEffects.None, 0f);
             }
 
             spriteBatch.Draw(az5Texture, new Rectangle(2000, 20, az5Texture.Width, az5Texture.Height), Color.White);

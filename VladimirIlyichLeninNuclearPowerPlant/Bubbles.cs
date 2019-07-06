@@ -9,115 +9,219 @@ namespace VladimirIlyichLeninNuclearPowerPlant
 {
     class Bubble
     {
-        public Point Pos { get; set; }
-        public Color BubbleColor { get; set; }
-        public int PathPos { get; set; }
+        public Vector2 Pos { get; set; }
         public string PathName { get; set; }
-        public Point Offset { get; set; }
+        public int NextWaypointIndex { get; set; }
+        public Vector2 Offset { get; set; }
+        public Color BubbleColor { get; set; }
 
-        public Bubble(Point pos, Color color, int pathPos, string pathName, Point offset)
+        public Bubble(Vector2 pos, string pathName, int nextWaypointIndex, Vector2 offset, Color bubbleColor)
         {
             Pos = pos;
-            BubbleColor = color;
-            PathPos = pathPos;
             PathName = pathName;
+            NextWaypointIndex = nextWaypointIndex;
             Offset = offset;
+            BubbleColor = bubbleColor;
+        }
+    }
+
+    class Pipe
+    {
+        public Vector2[] Waypoints { get; set; }
+        public float FlowVelocity { get; set; }
+        public Color BubbleColor { get; set; }
+        //public float BubbleFreq { get; set; }
+
+        public Pipe(Vector2[] waypoints, float flowVelocity, Color bubbleColor/*, float bubleFreq*/)
+        {
+            Waypoints = waypoints;
+            FlowVelocity = flowVelocity;
+            BubbleColor = bubbleColor;
+            //BubbleFreq = bubleFreq;
         }
     }
 
     class Bubbles
     {
-        private Point[] leftWaterPath;
-        //private Point[] rightWaterPath;
-        //private Point[] rightSteamPath;
-        //private Point[] leftSteamPath;
-
         public List<Bubble> BubblesList { get; private set; }
-        public int FlowRate { get; set; }
+        
+        private Dictionary<string, Pipe> pipes;
 
-        private readonly Color steamColor = new Color(200,200,255);
-        private readonly Color waterColor = new Color(0,0,255);
-
+        private float bubbleFreq = 20f;
+        private double prevTotalSeconds = 0;
+        private int offsetRange = 14;
         private Random rand = new Random();
+
+        //Waypoints: (551,1578)->(822,1578)->(822,826)->(1077,826)->(1077,1498)->(1460,1498)
+        private readonly Vector2[] testPath = new Vector2[]
+        {
+            new Vector2(551, 1578),
+            new Vector2(822, 1578),
+            new Vector2(822, 826),
+            new Vector2(1077, 826),
+            new Vector2(1077, 1498),
+            new Vector2(1460, 1498),
+        };
 
         public Bubbles()
         {
-            FlowRate = 1;
-            leftWaterPath = ConstructLeftWaterPath();
-            //rightWaterPath = ConstructRightWaterPath();
-            //leftSteamPath = ConstructLeftSteamPath();
-            //rightSteamPath = ConstructRightSteamPath();
-            BubblesList = new List<Bubble>();
-            //generate initial bubbles
-            for (int i = 0; i < leftWaterPath.Length; i += 20)
+            pipes = new Dictionary<string, Pipe>
             {
-                Bubble bubble = new Bubble(leftWaterPath[i], waterColor, i, "leftWater", new Point(rand.Next(-8, 9), rand.Next(-8, 9)));
-                BubblesList.Add(bubble);
-            }
+                { "testPath", new Pipe(testPath, 200f, new Color(50, 111, 200)/*, bubbleFreq*/) },
+            };
+            BubblesList = new List<Bubble>();
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
-            //update bubble positions along their line
+            foreach (KeyValuePair<string, Pipe> pipe in pipes)
+            {
+                double elapsedTime = gameTime.TotalGameTime.TotalSeconds - prevTotalSeconds;
+                if (elapsedTime > (1/bubbleFreq))
+                {
+                    Bubble bubble = new Bubble(pipe.Value.Waypoints[0], pipe.Key, 1, new Vector2(rand.Next(-offsetRange, offsetRange + 1), rand.Next(-offsetRange, offsetRange + 1)), pipe.Value.BubbleColor);
+                    BubblesList.Add(bubble);
+                    prevTotalSeconds = gameTime.TotalGameTime.TotalSeconds;
+                }
+            }
+
+            List<int> deadBubbleIndicies = new List<int>();
+
             foreach (Bubble bubble in BubblesList)
             {
-                bubble.PathPos += FlowRate;
-                if (bubble.PathPos >= leftWaterPath.Length)
+                Pipe pipe = pipes[bubble.PathName];
+                Vector2 direction = Vector2.Normalize(pipe.Waypoints[bubble.NextWaypointIndex] - bubble.Pos);
+                bubble.Pos += direction * pipe.FlowVelocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                if (Math.Abs(Vector2.Dot(direction, Vector2.Normalize(pipe.Waypoints[bubble.NextWaypointIndex] - bubble.Pos)) + 1) < 0.1f)
                 {
-                    bubble.PathPos = 0;
-                    bubble.Offset = new Point(rand.Next(-8, 9), rand.Next(-8, 9));
+                    bubble.Pos = pipe.Waypoints[bubble.NextWaypointIndex];
+                    bubble.NextWaypointIndex++;
+                    if (bubble.NextWaypointIndex >= pipe.Waypoints.Length)
+                    {
+                        deadBubbleIndicies.Add(BubblesList.IndexOf(bubble));
+                    }
                 }
-                bubble.Pos = leftWaterPath[bubble.PathPos];
+            }
+
+            foreach (int index in deadBubbleIndicies)
+            {
+                BubblesList.RemoveAt(index);
             }
         }
-
-        private Point[] ConstructLeftWaterPath()
-        {
-            //Waypoints: (551,1578)->(822,1578)->(822,826)->(1077,826)->(1077,1498)->(1460,1498)
-            List<Point> path = new List<Point>();
-            int index = 0;
-            for (int i = 551; i <= 822; i++)
-            {
-                path.Add(new Point(i, 1578));
-                index++;
-            }
-            for (int i = 1578; i >= 826; i--)
-            {
-                path.Add(new Point(822, i));
-                index++;
-            }
-            for (int i = 822; i <= 1077; i++)
-            {
-                path.Add(new Point(i, 826));
-                index++;
-            }
-            for (int i = 826; i <= 1498; i++)
-            {
-                path.Add(new Point(1077, i));
-                index++;
-            }
-            for (int i = 1077; i <= 1460; i++)
-            {
-                path.Add(new Point(i, 1498));
-                index++;
-            }
-
-            return path.ToArray();
-        }   
-
-        //private Point[] ConstructRightWaterPath()
-        //{
-
-        //}
-
-        //private Point[] ConstructLeftSteamPath()
-        //{
-
-        //}
-
-        //private Point[] ConstructRightSteamPath()
-        //{
-          
-        //}
     }
+
+    //class Bubble
+    //{
+    //    public Point Pos { get; set; }
+    //    public Color BubbleColor { get; set; }
+    //    public int PathPos { get; set; }
+    //    public string PathName { get; set; }
+    //    public Point Offset { get; set; }
+
+    //    public Bubble(Point pos, Color color, int pathPos, string pathName, Point offset)
+    //    {
+    //        Pos = pos;
+    //        BubbleColor = color;
+    //        PathPos = pathPos;
+    //        PathName = pathName;
+    //        Offset = offset;
+    //    }
+    //}
+
+    //class Bubbles
+    //{
+    //    private Point[] leftWaterPath;
+    //    //private Point[] rightWaterPath;
+    //    //private Point[] rightSteamPath;
+    //    //private Point[] leftSteamPath;
+
+    //    public List<Bubble> BubblesList { get; private set; }
+    //    public int FlowRate { get; set; }
+
+    //    private readonly Color steamColor = new Color(200,200,255);
+    //    private readonly Color waterColor = new Color(0,0,255);
+
+    //    private Random rand = new Random();
+
+    //    public Bubbles()
+    //    {
+    //        FlowRate = 1;
+    //        leftWaterPath = ConstructLeftWaterPath();
+    //        //rightWaterPath = ConstructRightWaterPath();
+    //        //leftSteamPath = ConstructLeftSteamPath();
+    //        //rightSteamPath = ConstructRightSteamPath();
+    //        BubblesList = new List<Bubble>();
+    //        //generate initial bubbles
+    //        for (int i = 0; i < leftWaterPath.Length; i += 20)
+    //        {
+    //            Bubble bubble = new Bubble(leftWaterPath[i], waterColor, i, "leftWater", new Point(rand.Next(-8, 9), rand.Next(-8, 9)));
+    //            BubblesList.Add(bubble);
+    //        }
+    //    }
+
+    //    public void Update()
+    //    {
+    //        //update bubble positions along their line
+    //        foreach (Bubble bubble in BubblesList)
+    //        {
+    //            bubble.PathPos += FlowRate;
+    //            if (bubble.PathPos >= leftWaterPath.Length)
+    //            {
+    //                bubble.PathPos = 0;
+    //                bubble.Offset = new Point(rand.Next(-8, 9), rand.Next(-8, 9));
+    //            }
+    //            bubble.Pos = leftWaterPath[bubble.PathPos];
+    //        }
+    //    }
+
+    //    private Point[] ConstructLeftWaterPath()
+    //    {
+    //        //Waypoints: (551,1578)->(822,1578)->(822,826)->(1077,826)->(1077,1498)->(1460,1498)
+    //        List<Point> path = new List<Point>();
+    //        int index = 0;
+    //        for (int i = 551; i <= 822; i++)
+    //        {
+    //            path.Add(new Point(i, 1578));
+    //            index++;
+    //        }
+    //        for (int i = 1578; i >= 826; i--)
+    //        {
+    //            path.Add(new Point(822, i));
+    //            index++;
+    //        }
+    //        for (int i = 822; i <= 1077; i++)
+    //        {
+    //            path.Add(new Point(i, 826));
+    //            index++;
+    //        }
+    //        for (int i = 826; i <= 1498; i++)
+    //        {
+    //            path.Add(new Point(1077, i));
+    //            index++;
+    //        }
+    //        for (int i = 1077; i <= 1460; i++)
+    //        {
+    //            path.Add(new Point(i, 1498));
+    //            index++;
+    //        }
+
+    //        return path.ToArray();
+    //    }   
+
+    //    //private Point[] ConstructRightWaterPath()
+    //    //{
+
+    //    //}
+
+    //    //private Point[] ConstructLeftSteamPath()
+    //    //{
+
+    //    //}
+
+    //    //private Point[] ConstructRightSteamPath()
+    //    //{
+          
+    //    //}
+    //}
 }
