@@ -17,6 +17,8 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         Texture2D turbineTexture;
         Texture2D pumpTexture;
         Texture2D cursorTexture;
+        //Texture2D bubbleStripTexture;
+        Texture2D bubbleTexture;
 
         SpriteFont defaultFont;
 
@@ -27,6 +29,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         
         List<ControlRod> controlRods;
         Plant plant;
+        Bubbles bubbles;
 
         public Game1()
         {
@@ -59,6 +62,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
 
             plant = new Plant(controlRods);
 
+            bubbles = new Bubbles();
 
             base.Initialize();
         }
@@ -81,6 +85,8 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             controlRodTargetTexture = Content.Load<Texture2D>("controlRodTarget");
             turbineTexture = Content.Load<Texture2D>("turbine");
             pumpTexture = Content.Load<Texture2D>("pump");
+            //bubbleStripTexture = Content.Load<Texture2D>("bubbleStrip");
+            bubbleTexture = Content.Load<Texture2D>("bubbleSmall");
 
             defaultFont = Content.Load<SpriteFont>("Arial");
             //Create control rod instances and add to list of control rods
@@ -119,6 +125,9 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             }
             plant.update(gameTime);
 
+            bubbles.FlowRate = (int)gameTime.TotalGameTime.TotalSeconds;
+            bubbles.Update();
+
             base.Update(gameTime);
         }
 
@@ -150,6 +159,11 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                 }
             }
 
+            foreach (Bubble bubble in bubbles.BubblesList)
+            {
+                spriteBatch.Draw(bubbleTexture, new Rectangle(bubble.Pos.X + bubble.Offset.X, bubble.Pos.Y + bubble.Offset.Y, bubbleTexture.Width, bubbleTexture.Height), null,  bubble.BubbleColor, 0f, new Vector2(bubbleTexture.Width/2, bubbleTexture.Height/2), SpriteEffects.None, 0f);
+            }
+
             //**********************   TEMP CODE   *****************************
             //spriteBatch.Draw(controlRodTexture, new Rectangle(1497, 509, controlRodTexture.Width, controlRodTexture.Height), Color.White);
             //for (int i = 0; i < 5; i++)
@@ -159,12 +173,16 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             spriteBatch.Draw(turbineTexture, new Rectangle(421, 1481, turbineTexture.Width, turbineTexture.Height), null, Color.White, -(float)gameTime.TotalGameTime.TotalSeconds * 7, new Vector2(turbineTexture.Width / 2, turbineTexture.Height / 2), SpriteEffects.None, 0f);
             spriteBatch.Draw(pumpTexture, new Rectangle(1011 + 67, 1390 + 67, pumpTexture.Width, pumpTexture.Height), null, Color.White, -(float)gameTime.TotalGameTime.TotalSeconds * 5, new Vector2(pumpTexture.Width / 2, pumpTexture.Height / 2), SpriteEffects.None, 0f);
             spriteBatch.Draw(pumpTexture, new Rectangle(2047 + 67, 1393 + 67, pumpTexture.Width, pumpTexture.Height), null, Color.White, -(float)gameTime.TotalGameTime.TotalSeconds * -5, new Vector2(pumpTexture.Width / 2, pumpTexture.Height / 2), SpriteEffects.FlipHorizontally, 0f);
-            //******************************************************************
+            
             for (int i = 0; i < 5; i++)
             {
                 Cell cell = plant.core.cells[0, i];
                 spriteBatch.DrawString(defaultFont, $"Cell [0,{i}]: Rod: {(int)cell.RodPercent}, Graphite: {(int)cell.GraphitePercent}, Water: {(int)cell.WaterPercent} ", new Vector2(0,30*i), Color.Red);
             }
+
+            //spriteBatch.Draw(bubbleStripTexture, new Rectangle(1100, 1474, 200, 45), new Rectangle((int)(gameTime.TotalGameTime.TotalSeconds * 100), 0, 200, 45), Color.Blue, 0f, new Vector2(0,0), SpriteEffects.FlipHorizontally, 0f);
+            //******************************************************************
+
             spriteBatch.End();
 
 
