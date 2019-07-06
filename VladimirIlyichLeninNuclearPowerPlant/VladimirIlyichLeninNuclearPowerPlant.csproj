@@ -48,6 +48,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Pump.cs" />
     <Compile Include="ReactorCore.cs" />
+    <Compile Include="Simulation\Cell.cs" />
+    <Compile Include="Simulation\Constants.cs" />
+    <Compile Include="Simulation\Core.cs" />
+    <Compile Include="Simulation\Plant.cs" />
     <Compile Include="Turbine.cs" />
   </ItemGroup>
   <ItemGroup>

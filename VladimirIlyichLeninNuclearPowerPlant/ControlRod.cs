@@ -20,7 +20,12 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         private Point prevMousePosition;
 
         public Rectangle rectangle;
-        public int insertedPercentage;
+        public Rectangle targetRectangle;
+        public double targetPercentage;
+        public double insertedPercentage;
+        
+
+        private const double movementSpeed = 100.0/12.0;
 
 
         public ControlRod(Rectangle _controlRodSlot, Point _controlRodSize)
@@ -29,10 +34,13 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             rectangle = new Rectangle(_controlRodSlot.Location, _controlRodSize);
             minY = _controlRodSlot.Top;
             maxY = _controlRodSlot.Bottom - _controlRodSize.Y;
+            targetRectangle = rectangle;
+            targetRectangle.Y = maxY;
+            insertedPercentage = 100;
         }
 
 
-        public void Update(Point mousePosition)
+        public void Update(Point mousePosition, GameTime gameTime)
         {
             //if (Mouse.GetState().LeftButton == ButtonState.Pressed && controlRodSlot.Contains(mousePosition))
             //{
@@ -57,7 +65,12 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             }
             else if (dragging != true)
             {
-                if (rectangle.Contains(mousePosition) && dragging != null)
+                if (targetRectangle.Contains(mousePosition) && dragging != null)
+                {
+                    dragging = true;
+                    dragYOffset = mousePosition.Y - targetRectangle.Y;
+                }
+                else if (rectangle.Contains(mousePosition) && dragging != null)
                 {
                     dragging = true;
                     dragYOffset = mousePosition.Y - rectangle.Y;
@@ -74,17 +87,33 @@ namespace VladimirIlyichLeninNuclearPowerPlant
 
                 if (dragYPos > maxY)
                 {
-                    rectangle.Y = maxY;
+                    targetRectangle.Y = maxY;
                 }
                 else if (dragYPos < minY)
                 {
-                    rectangle.Y = minY;
+                    targetRectangle.Y = minY;
                 }
                 else
                 {
-                    rectangle.Y = dragYPos;
+                    targetRectangle.Y = dragYPos;
                 }
             }
+            targetPercentage = (targetRectangle.Y - minY) * 100 / (maxY - minY);
+
+            if (Math.Abs(insertedPercentage - targetPercentage) < movementSpeed * gameTime.ElapsedGameTime.TotalSeconds)
+            {
+                insertedPercentage = targetPercentage;
+            }
+            else if (insertedPercentage > targetPercentage)
+            {
+                insertedPercentage -= movementSpeed * gameTime.ElapsedGameTime.TotalSeconds;
+            }
+            else if (insertedPercentage < targetPercentage)
+            {
+                insertedPercentage += movementSpeed * gameTime.ElapsedGameTime.TotalSeconds;
+            }
+
+            rectangle.Y = (int)(insertedPercentage / 100 * (maxY - minY) + minY);
         }
 
 

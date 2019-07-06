@@ -11,7 +11,7 @@ Non-nuclear
 - Inlet temp (scaler)
 - Outlet temp (scaler)
 - Feedwater pump(scaler)
-- Inlet/reactor/outlet pressure(scaler, assumed uniform)
+- Inlet pressure(scaler, assumed uniform)
 - Steam seperator boiling(scaler)
 - Steam seperator pressure(scaler)
 - Turbine power (scaler)
@@ -76,10 +76,22 @@ Reactor power
 #---#---#---#---#---#
 
 Reactor water simulation
-- Flow speed based on loop pressure
+- Flow speed based on inlet pressure and resistance
 - Water enters bottom cell at inlet temp, and moves upwards in columns from cell-to-cell based on flow speed/resistance
 - If water gets too hot (dependant on pressure and temp) it will boil
 - Steam increases flow resistance, and effects moderation/absorbtion
+
+
+Core simulation order:
+- neutron emission from reactivity
+	-
+
+
+
+
+
+
+
 
 Inlet temp
 - Based on temp in steam seperator

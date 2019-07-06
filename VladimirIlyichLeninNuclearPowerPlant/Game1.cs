@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
+using VladimirIlyichLeninNuclearPowerPlant.Simulation;
 
 namespace VladimirIlyichLeninNuclearPowerPlant
 {
@@ -12,8 +13,12 @@ namespace VladimirIlyichLeninNuclearPowerPlant
     {
         Texture2D plantTexture;
         Texture2D controlRodTexture;
+        Texture2D controlRodTargetTexture;
         Texture2D turbineTexture;
+        Texture2D pumpTexture;
         Texture2D cursorTexture;
+
+        SpriteFont defaultFont;
 
         Matrix scaleMatrix;
 
@@ -21,6 +26,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         SpriteBatch spriteBatch;
         
         List<ControlRod> controlRods;
+        Plant plant;
 
         public Game1()
         {
@@ -36,6 +42,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             graphics.PreferredBackBufferWidth = 1600;
 
             Content.RootDirectory = "Content";
+
         }
 
         /// <summary>
@@ -49,6 +56,9 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             this.IsMouseVisible = true;
 
             controlRods = new List<ControlRod>();
+
+            plant = new Plant(controlRods);
+
 
             base.Initialize();
         }
@@ -68,12 +78,15 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             
             plantTexture = Content.Load<Texture2D>("plant");
             controlRodTexture = Content.Load<Texture2D>("controlRod");
+            controlRodTargetTexture = Content.Load<Texture2D>("controlRodTarget");
             turbineTexture = Content.Load<Texture2D>("turbine");
+            pumpTexture = Content.Load<Texture2D>("pump");
 
+            defaultFont = Content.Load<SpriteFont>("Arial");
             //Create control rod instances and add to list of control rods
             for (int i = 0; i < 5; i++)
             {
-                controlRods.Add(new ControlRod(new Rectangle(1497 + (i * 43), 509, 27, 810), new Point(controlRodTexture.Width, controlRodTexture.Height)));
+                controlRods.Add(new ControlRod(new Rectangle(1498 + (i * 43), 761, 27, 810), new Point(controlRodTexture.Width, controlRodTexture.Height)));
             }
         }
 
@@ -102,8 +115,9 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             //Update all control rods
             foreach (ControlRod rod in controlRods)
             {
-                rod.Update(gameMousePos);
+                rod.Update(gameMousePos, gameTime);
             }
+            plant.update(gameTime);
 
             base.Update(gameTime);
         }
@@ -114,6 +128,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
+
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             //Calculate scaling between output window resolution and the virtual game resolution
@@ -129,17 +144,27 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             foreach (ControlRod rod in controlRods)
             {
                 spriteBatch.Draw(controlRodTexture, rod.rectangle, Color.White);
+                if (rod.insertedPercentage != rod.targetPercentage)
+                { 
+                    spriteBatch.Draw(controlRodTargetTexture, rod.targetRectangle, Color.White);
+                }
             }
-            
+
             //**********************   TEMP CODE   *****************************
             //spriteBatch.Draw(controlRodTexture, new Rectangle(1497, 509, controlRodTexture.Width, controlRodTexture.Height), Color.White);
             //for (int i = 0; i < 5; i++)
             //{
             //    spriteBatch.Draw(controlRodTexture, new Rectangle(1497 + i * 43, 509 + i * 80, controlRodTexture.Width, controlRodTexture.Height), Color.White);
             //}
-            spriteBatch.Draw(turbineTexture, new Rectangle(421, 1481, turbineTexture.Width, turbineTexture.Height), null, Color.White, -(float)gameTime.TotalGameTime.TotalSeconds * 10, new Vector2(turbineTexture.Width/2, turbineTexture.Height/2), SpriteEffects.None, 0f);
+            spriteBatch.Draw(turbineTexture, new Rectangle(421, 1481, turbineTexture.Width, turbineTexture.Height), null, Color.White, -(float)gameTime.TotalGameTime.TotalSeconds * 7, new Vector2(turbineTexture.Width / 2, turbineTexture.Height / 2), SpriteEffects.None, 0f);
+            spriteBatch.Draw(pumpTexture, new Rectangle(1011 + 67, 1390 + 67, pumpTexture.Width, pumpTexture.Height), null, Color.White, -(float)gameTime.TotalGameTime.TotalSeconds * 5, new Vector2(pumpTexture.Width / 2, pumpTexture.Height / 2), SpriteEffects.None, 0f);
+            spriteBatch.Draw(pumpTexture, new Rectangle(2047 + 67, 1393 + 67, pumpTexture.Width, pumpTexture.Height), null, Color.White, -(float)gameTime.TotalGameTime.TotalSeconds * -5, new Vector2(pumpTexture.Width / 2, pumpTexture.Height / 2), SpriteEffects.FlipHorizontally, 0f);
             //******************************************************************
-
+            for (int i = 0; i < 5; i++)
+            {
+                Cell cell = plant.core.cells[0, i];
+                spriteBatch.DrawString(defaultFont, $"Cell [0,{i}]: Rod: {(int)cell.RodPercent}, Graphite: {(int)cell.GraphitePercent}, Water: {(int)cell.WaterPercent} ", new Vector2(0,30*i), Color.Red);
+            }
             spriteBatch.End();
 
 

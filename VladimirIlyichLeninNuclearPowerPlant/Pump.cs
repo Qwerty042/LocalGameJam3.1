@@ -8,5 +8,6 @@ namespace VladimirIlyichLeninNuclearPowerPlant
 {
     class Pump
     {
+        public float speed { get; set; } = 50;
     }
 }
