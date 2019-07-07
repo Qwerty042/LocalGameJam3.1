@@ -10,6 +10,10 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
     class Plant
     {
         public Core core { get; }
+        public double pumpPressure { get; set; } = 50;
+        public double seperatorTemp { get; set; } = 200;
+
+
         IGameConstants constants;
 
         public Plant(List<ControlRod> controlRods, IGameConstants constants)
@@ -21,7 +25,10 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
         public void update(GameTime gameTime)
         {
             var deltaT = gameTime.ElapsedGameTime.TotalSeconds;
+            core.InletPressure = pumpPressure;
+            core.InletTemp = seperatorTemp;
             core.update(deltaT);
+
         }
     }
 }

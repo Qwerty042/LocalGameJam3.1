@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System;
 using System.Collections.Generic;
 using VladimirIlyichLeninNuclearPowerPlant.Simulation;
@@ -35,6 +36,10 @@ namespace VladimirIlyichLeninNuclearPowerPlant
 
         Matrix scaleMatrix;
 
+        Video video;
+        Video videoStall;
+        VideoPlayer player;
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         
@@ -43,6 +48,8 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         Plant plant;
         Bubbles bubbles;
         Pump pump;
+
+        bool ended = false;
 
         public Game1()
         {
@@ -110,6 +117,10 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             reactivityMeterDelayedTexture = Content.Load<Texture2D>("reactivityMeterDelayed");
             reactivityMeterBarTexture = Content.Load<Texture2D>("reactivityMeterBar");
 
+            video = Content.Load<Video>("Ending_film");
+            videoStall = Content.Load<Video>("Stall_Ending_film");
+            player = new VideoPlayer();
+
 
             PowerBackgroundTexture = Content.Load<Texture2D>("PowerBG");
             BlankNixieTexture = Content.Load<Texture2D>("NixieOff");
@@ -160,18 +171,34 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                 }
             }
 
-            //Update all control rods
-            foreach (ControlRod rod in controlRods)
+            if (!ended)
             {
-                rod.Update(gameMousePos, gameTime);
+                //Update all control rods
+                foreach (ControlRod rod in controlRods)
+                {
+                    rod.Update(gameMousePos, gameTime);
+                }
+                plant.update(gameTime);
+
+                pump.Update(gameTime);
+
+                bubbles.Update(gameTime);
             }
-            plant.update(gameTime);
-
-            pump.Update(gameTime);
-
-            bubbles.Update(gameTime);
 
             base.Update(gameTime);
+
+            if (plant.core.checkDed() && !ended)
+            {
+                player.Play(video);
+                ended = true;
+                player.IsLooped = false;
+            }
+            if (plant.core.DelayedCriticality < 0.3 && !ended)
+            {
+                player.Play(videoStall);
+                ended = true;
+                player.IsLooped = false;
+            }
         }
 
         /// <summary>
@@ -255,6 +282,16 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                 }
             }
             //******************************************************************
+
+            Texture2D videoTexture = null;
+
+            if (player.State != MediaState.Stopped)
+                videoTexture = player.GetTexture();
+
+            if (videoTexture != null)
+            {
+                spriteBatch.Draw(videoTexture, new Rectangle(0, 0, plantTexture.Width, plantTexture.Height), Color.White);
+            }
 
             spriteBatch.End();
 

@@ -104,6 +104,11 @@
 /processorParam:TextureFormat=Color
 /build:controlRodTarget.png
 
+#begin Ending_film.wmv
+/importer:WmvImporter
+/processor:VideoProcessor
+/build:Ending_film.wmv
+
 #begin Nixie0.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -319,6 +324,11 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:reactivityMeterPrompt.png
+
+#begin Stall_Ending_film.wmv
+/importer:WmvImporter
+/processor:VideoProcessor
+/build:Stall_Ending_film.wmv
 
 #begin turbine.png
 /importer:TextureImporter
