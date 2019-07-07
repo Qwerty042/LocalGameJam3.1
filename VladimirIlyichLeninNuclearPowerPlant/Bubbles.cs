@@ -49,10 +49,13 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         
         private Dictionary<string, Pipe> pipes;
 
-        private float bubbleFreq = 20f;
+        private float bubbleFreq = 40f;
         //private double prevTotalSeconds = 0;
         private int offsetRange = 14;
         private Random rand = new Random();
+
+        private readonly Color waterColor = new Color(50,100,200);
+        private readonly Color steamColor = new Color(220,220,255);
 
         private readonly Vector2[] pumpLeftPath = new Vector2[]
         {
@@ -125,14 +128,14 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         {
             pipes = new Dictionary<string, Pipe>
             {
-                { "pumpLeftPath", new Pipe(pumpLeftPath, 400f, new Color(255, 0, 0))},
-                { "pumpRightPath", new Pipe(pumpRightPath, 400f, new Color(0, 255, 0))},
-                { "coreSteamLeftPath", new Pipe(coreSteamLeftPath, 400f, new Color(0, 0, 255))},
-                { "coreSteamRightPath", new Pipe(coreSteamRightPath, 400f, new Color(255, 255, 0))},
-                { "turbineSteamLeftPath", new Pipe(turbineSteamLeftPath, 400f, new Color(0, 255, 255))},
-                { "turbineSteamRightPath", new Pipe(turbineSteamRightPath, 400f, new Color(255, 0, 255))},
-                { "turbineWaterLeftPath", new Pipe(turbineWaterLeftPath, 400f, new Color(255, 255, 255))},
-                { "turbineWaterRightPath", new Pipe(turbineWaterRightPath, 400f, new Color(0, 0, 0))},
+                { "pumpLeftPath", new Pipe(pumpLeftPath, 400f, waterColor)},
+                { "pumpRightPath", new Pipe(pumpRightPath, 400f, waterColor)},
+                { "coreSteamLeftPath", new Pipe(coreSteamLeftPath, 400f, steamColor)},
+                { "coreSteamRightPath", new Pipe(coreSteamRightPath, 400f, steamColor)},
+                { "turbineSteamLeftPath", new Pipe(turbineSteamLeftPath, 400f, steamColor)},
+                { "turbineSteamRightPath", new Pipe(turbineSteamRightPath, 400f, steamColor)},
+                { "turbineWaterLeftPath", new Pipe(turbineWaterLeftPath, 400f, waterColor)},
+                { "turbineWaterRightPath", new Pipe(turbineWaterRightPath, 400f, waterColor)},
             };
             BubblesList = new List<Bubble>();
         }
@@ -165,7 +168,6 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                     if (bubble.NextWaypointIndex >= pipe.Waypoints.Length)
                     {
                         deadBubbles.Add(bubble);
-                        bubble.NextWaypointIndex--;
                     }
                 }
             }
