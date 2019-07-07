@@ -175,6 +175,11 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                 BubblesList.Remove(bubble);
             }
         }
+
+        public void SetFlowVelocity(string pathName, float flowVelocity)
+        {
+            pipes[pathName].FlowVelocity = flowVelocity;
+        }
     }
 
     //class Bubble
