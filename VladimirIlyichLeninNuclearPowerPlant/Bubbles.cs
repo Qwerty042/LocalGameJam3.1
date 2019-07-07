@@ -138,6 +138,11 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                 { "turbineWaterRightPath", new Pipe(turbineWaterRightPath, 400f, waterColor)},
             };
             BubblesList = new List<Bubble>();
+
+            //foreach (KeyValuePair<string,Pipe> pipe in pipes)
+            //{
+
+            //}
         }
 
         public void Update(GameTime gameTime)
@@ -160,6 +165,18 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                 Pipe pipe = pipes[bubble.PathName];
                 Vector2 direction = Vector2.Normalize(pipe.Waypoints[bubble.NextWaypointIndex] - bubble.Pos);
                 bubble.Pos += direction * pipe.FlowVelocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                if (bubble.PathName == "turbineWaterRightPath")
+                {
+                    if ((bubble.Pos.X > 1030 && bubble.Pos.X < 1120) || (bubble.Pos.X > 2070 && bubble.Pos.X < 2160))
+                    {
+                        bubble.BubbleColor = new Color(0, 0, 0, 0);
+                    }
+                    else
+                    {
+                        bubble.BubbleColor = waterColor;
+                    }
+                }
 
                 if (Math.Abs(Vector2.Dot(direction, Vector2.Normalize(pipe.Waypoints[bubble.NextWaypointIndex] - bubble.Pos)) + 1) < 0.1f)
                 {
