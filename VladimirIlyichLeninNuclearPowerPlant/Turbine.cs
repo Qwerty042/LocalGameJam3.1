@@ -9,7 +9,6 @@ namespace VladimirIlyichLeninNuclearPowerPlant
 {
     class Turbine
     {
-        //public float speed { get; set; } = 50;
         public float TurbineSpeedPercentage
         {
             get { return turbineSpeedPercentage; }
@@ -22,7 +21,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         private float turbineSpeedPercentage; //0-100%
         public float TurbineRotation { get; set; } //rad
         private float turbineSpeed; //rad/sec
-        private const int maxTurbineSpeed = 20; //rad/sec
+        private const int maxTurbineSpeed = 12; //rad/sec
 
         public Turbine(float turbineSpeedPercentage)
         {
