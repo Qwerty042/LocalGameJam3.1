@@ -49,7 +49,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         
         private Dictionary<string, Pipe> pipes;
 
-        private float bubbleFreq = 40f;
+        private float bubbleDensity = 0.1f;
         //private double prevTotalSeconds = 0;
         private int offsetRange = 14;
         private Random rand = new Random();
@@ -191,12 +191,15 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             foreach (KeyValuePair<string, Pipe> pipe in pipes)
             {
                 double elapsedTime = gameTime.TotalGameTime.TotalSeconds - pipe.Value.LastBubbleSpawn;
-                if (elapsedTime > (1 / bubbleFreq))
+                if (pipe.Value.FlowVelocity != 0)
                 {
-                    Bubble bubble = new Bubble(pipe.Value.Waypoints[0], pipe.Key, 1, new Vector2(rand.Next(-offsetRange, offsetRange + 1), rand.Next(-offsetRange, offsetRange + 1)), pipe.Value.BubbleColor);
-                    BubblesList.Add(bubble);
-                    pipe.Value.LastBubbleSpawn = gameTime.TotalGameTime.TotalSeconds;
-                }
+                    if (elapsedTime > (1 / (pipe.Value.FlowVelocity * bubbleDensity)))
+                    {
+                        Bubble bubble = new Bubble(pipe.Value.Waypoints[0], pipe.Key, 1, new Vector2(rand.Next(-offsetRange, offsetRange + 1), rand.Next(-offsetRange, offsetRange + 1)), pipe.Value.BubbleColor);
+                        BubblesList.Add(bubble);
+                        pipe.Value.LastBubbleSpawn = gameTime.TotalGameTime.TotalSeconds;
+                    }
+                }                
             }
 
             List<Bubble> deadBubbles = new List<Bubble>();
