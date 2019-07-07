@@ -21,8 +21,15 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         //Texture2D bubbleStripTexture;
         Texture2D bubbleTexture;
         Texture2D plantBubbleClipTexture;
-        Texture2D plantBubbleOverlapClipTexture;
         Texture2D az5Texture;
+
+        Texture2D reactivityMeterPromptTexture;
+        Texture2D reactivityMeterDelayedTexture;
+        Texture2D reactivityMeterBarTexture;
+
+        Texture2D PowerBackgroundTexture;
+        Texture2D BlankNixieTexture;
+        List<Texture2D> PowerNixieTextures;
 
         SpriteFont defaultFont;
 
@@ -67,6 +74,8 @@ namespace VladimirIlyichLeninNuclearPowerPlant
 
             plant = new Plant(controlRods, new StandardConstants());
 
+            PowerNixieTextures = new List<Texture2D>();
+
             bubbles = new Bubbles();
 
             base.Initialize();
@@ -94,7 +103,17 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             //bubbleStripTexture = Content.Load<Texture2D>("bubbleStrip");
             bubbleTexture = Content.Load<Texture2D>("bubbleSmall");
             plantBubbleClipTexture = Content.Load<Texture2D>("plantBubbleClip");
-            plantBubbleOverlapClipTexture = Content.Load<Texture2D>("plantBubbleOverlapClip");
+            reactivityMeterPromptTexture = Content.Load<Texture2D>("reactivityMeterPrompt");
+            reactivityMeterDelayedTexture = Content.Load<Texture2D>("reactivityMeterDelayed");
+            reactivityMeterBarTexture = Content.Load<Texture2D>("reactivityMeterBar");
+
+
+            PowerBackgroundTexture = Content.Load<Texture2D>("PowerBG");
+            BlankNixieTexture = Content.Load<Texture2D>("NixieOff");
+            for(int i = 0; i < 10; i++)
+            {
+                PowerNixieTextures.Add(Content.Load<Texture2D>($"Nixie{i}"));
+            }
 
             az5Rectangle = new Rectangle(2000, 20, az5Texture.Width, az5Texture.Height);
 
@@ -202,10 +221,33 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                 for (int j = 0; j < 5; j++)
                 {
                     Cell cell = plant.core.cells[j, i];
-                    spriteBatch.DrawString(defaultFont, $"Cell [{j},{i}]: temp:{Math.Round(cell.Temp, 3)},promptFlux = {Math.Round(cell.PromptRate, 3)}, delayedFlux = {Math.Round(cell.DelayedRate, 3)}, moderation = {Math.Round(cell.ModerationPercent, 3)},nonreactive = {Math.Round(cell.NonReactiveAbsorbtionPercent, 3)} , reactive = {Math.Round(cell.ReactiveAbsorbtionPercent, 3)}, xenon = {Math.Round(cell.Xenon, 3)}, prexenon = {Math.Round(cell.PreXenon, 3)}", new Vector2(0, 30 * (i+ 5*j)), Color.Red);
+                    spriteBatch.DrawString(defaultFont, $"Cell [{j},{i}]: watertemp:{Math.Round(cell.WaterTemp, 3)},promptFlux = {Math.Round(cell.PromptRate, 3)}, delayedFlux = {Math.Round(cell.DelayedRate, 3)}, moderation = {Math.Round(cell.ModerationPercent, 3)},nonreactive = {Math.Round(cell.NonReactiveAbsorbtionPercent, 3)} , reactive = {Math.Round(cell.ReactiveAbsorbtionPercent, 3)}, xenon = {Math.Round(cell.Xenon, 3)}, prexenon = {Math.Round(cell.PreXenon, 3)}, delayCrit: {Math.Round(cell.CellDelayedCriticality, 3)}, promptCrit: {Math.Round(cell.CellPromptCriticality, 3)}", new Vector2(0, 30 * (i+ 5*j)), Color.Red);
                 }
             }
-            spriteBatch.DrawString(defaultFont, $"Power: {plant.core.PowerLevel} MW", new Vector2(2400, 0), Color.Red);
+            spriteBatch.DrawString(defaultFont, $"Power: {Math.Round(plant.core.PowerLevel,4)} MW, prompt criticality = {Math.Round(plant.core.PromptCriticality, 4)}, delayed criticality = {Math.Round(plant.core.DelayedCriticality, 4)}", new Vector2(2400, 0), Color.Red);
+
+
+
+            spriteBatch.Draw(reactivityMeterPromptTexture, new Rectangle(2350, 50, reactivityMeterPromptTexture.Width, reactivityMeterPromptTexture.Height), Color.White);
+            spriteBatch.Draw(reactivityMeterBarTexture, new Rectangle(2356 + reactivtyToPixel(plant.core.PromptCriticality), 60, reactivityMeterBarTexture.Width, reactivityMeterBarTexture.Height), Color.White);
+            
+            spriteBatch.Draw(reactivityMeterDelayedTexture, new Rectangle(2350, 350, reactivityMeterDelayedTexture.Width, reactivityMeterDelayedTexture.Height), Color.White);
+            spriteBatch.Draw(reactivityMeterBarTexture, new Rectangle(2356 + reactivtyToPixel(plant.core.DelayedCriticality), 360, reactivityMeterBarTexture.Width, reactivityMeterBarTexture.Height), Color.White);
+
+            spriteBatch.Draw(PowerBackgroundTexture, new Rectangle(2350, 650, PowerBackgroundTexture.Width, PowerBackgroundTexture.Height), Color.White);
+            int power = (int)Math.Min(Math.Round(plant.core.PowerLevel, 0),99999);
+            for (int i = 4; i >= 0; i--)
+            {
+                var digit = power / (int)Math.Pow(10, i) % 10;
+                if (digit == 0 && power <= Math.Pow(10, i) && i != 0)
+                {
+                    spriteBatch.Draw(BlankNixieTexture, new Rectangle(2360 + 111 * (4 - i), 660, BlankNixieTexture.Width, BlankNixieTexture.Height), Color.White);
+                }
+                else
+                {
+                    spriteBatch.Draw(PowerNixieTextures[digit], new Rectangle(2360 + 111 * (4 - i), 660, PowerNixieTextures[digit].Width, PowerNixieTextures[digit].Height), Color.White);
+                }
+            }
 
             //spriteBatch.Draw(bubbleStripTexture, new Rectangle(1100, 1474, 200, 45), new Rectangle((int)(gameTime.TotalGameTime.TotalSeconds * 100), 0, 200, 45), Color.Blue, 0f, new Vector2(0,0), SpriteEffects.FlipHorizontally, 0f);
             //******************************************************************
@@ -215,5 +257,39 @@ namespace VladimirIlyichLeninNuclearPowerPlant
 
             base.Draw(gameTime);
         }
+
+        int reactivtyToPixel(double reactivty)
+        {
+            double RV = reactivty * 100;
+
+            double CV;
+            if(RV > 100)
+            {
+                CV = RV - 99;
+            }
+            else
+            {
+                CV = RV - 101;
+            }
+
+            double LV;
+            if(CV < 0)
+            {
+                LV = -Math.Log10(-CV);
+            }
+            else if(CV > 0)
+            {
+                LV = Math.Log10(CV);
+            }
+            else
+            {
+                LV = 0;
+            }
+
+            LV += 2;
+
+            return (int)Math.Round(LV * 200,0);
+        }
+
     }
 }

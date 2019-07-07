@@ -28,5 +28,13 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
         public double ModerationPercent { get; set; } = 0;
         public double NonReactiveAbsorbtionPercent { get; set; } = 0;
         public double ReactiveAbsorbtionPercent { get; set; } = 0;
+
+        public double CellEmitted { get; set; } = 0;
+        public double CellDelayedAbsorb { get; set; } = 0;
+        public double CellPromptAbsorb { get; set; } = 0;
+
+        public double CellDelayedCriticality { get; set; } = 0;
+        public double CellPromptCriticality { get; set; } = 0;
+
     }
 }

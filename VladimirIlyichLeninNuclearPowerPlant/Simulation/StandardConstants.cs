@@ -44,7 +44,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
         public double FeedwaterThermalCapacity { get; } = 0.5; // MJ/K  per cell
         public double WaterPerCell { get; } = 0.5; // kg  per cell
 
-        public double SpontaneousFlux { get; } = 0.05;//from natural, random decay
+        public double SpontaneousFlux { get; } = 0.005;//from natural, random decay
 
 
     }
