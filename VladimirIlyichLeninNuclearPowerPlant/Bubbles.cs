@@ -140,7 +140,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             BubblesList = new List<Bubble>();
 
             //start pipes with some bubbles in them already
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 100; i++)
             {
                 foreach (KeyValuePair<string, Pipe> pipe in pipes)
                 {

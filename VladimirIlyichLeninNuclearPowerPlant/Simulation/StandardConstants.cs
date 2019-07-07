@@ -28,7 +28,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
 
         public double FluxPerReaction { get; } = 2.5;
 
-        public double PreXenonProductionRateCoefficient { get; } = 0.01;
+        public double PreXenonProductionRateCoefficient { get; } = 0.03;
         public double PreXenonDecayTimeConstant { get; } = 30;
         public double XenonDecayTimeConstant { get; } = 90;
         public double XenonBuringRateCoefficent { get; } = 1;
