@@ -145,6 +145,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             }
             plant.update(gameTime);
 
+            bubbles.SetFlowVelocity("pumpLeftPath", (float)gameTime.TotalGameTime.TotalSeconds);
             bubbles.Update(gameTime);
 
             base.Update(gameTime);
