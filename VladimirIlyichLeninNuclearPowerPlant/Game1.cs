@@ -190,6 +190,16 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                 {
                     rod.Update(gameMousePos, gameTime);
                 }
+                plant.pumpPressure = 10 + 0.4 * pump.PumpSpeedPercentage;
+                bubbles.SetFlowVelocity("pumpLeftPath", (float)plant.core.InletFlow / 15);
+                bubbles.SetFlowVelocity("pumpRightPath", (float)plant.core.InletFlow / 15);
+                bubbles.SetFlowVelocity("coreSteamLeftPath", (float)plant.core.OutletFlow / 10);
+                bubbles.SetFlowVelocity("coreSteamRightPath", (float)plant.core.OutletFlow / 10);
+                bubbles.SetFlowVelocity("turbineSteamLeftPath", (float)plant.steamFlux / 10);
+                bubbles.SetFlowVelocity("turbineSteamRightPath", (float)plant.steamFlux / 10);
+                bubbles.SetFlowVelocity("turbineWaterLeftPath", (float)plant.steamFlux / 20);
+                bubbles.SetFlowVelocity("turbineWaterRightPath", (float)plant.steamFlux / 20);
+                turbine.TurbineSpeedPercentage = (float)plant.turbineSpeed*100;
                 plant.update(gameTime);
 
                 pumpSlider.Update(gameMousePos);
@@ -234,75 +244,6 @@ namespace VladimirIlyichLeninNuclearPowerPlant
 
 
             spriteBatch.Begin(transformMatrix: scaleMatrix); //scale the following spritebatch to the output window resolution
-            spriteBatch.Draw(plantTexture, new Vector2(0, 0), Color.White); //draw background
-
-            //Draw all controll rods
-            foreach (ControlRod rod in controlRods)
-            {
-                spriteBatch.Draw(controlRodTexture, rod.rectangle, Color.White);
-                if (rod.insertedPercentage != rod.targetPercentage)
-                { 
-                    spriteBatch.Draw(controlRodTargetTexture, rod.targetRectangle, Color.White);
-                }
-            }
-
-            foreach (Bubble bubble in bubbles.BubblesList)
-            {
-                spriteBatch.Draw(bubbleTexture, new Rectangle((int)(bubble.Pos.X + bubble.Offset.X), (int)(bubble.Pos.Y + bubble.Offset.Y), bubbleTexture.Width, bubbleTexture.Height), null,  bubble.BubbleColor, 0f, new Vector2(bubbleTexture.Width/2, bubbleTexture.Height/2), SpriteEffects.None, 0f);
-
-            }
-            spriteBatch.Draw(plantBubbleClipTexture, new Vector2(0, 0), Color.White); //cover bubbles
-
-            spriteBatch.Draw(az5Texture, new Rectangle(2000, 20, az5Texture.Width, az5Texture.Height), Color.White);
-
-            spriteBatch.Draw(pumpTexture, new Rectangle(1011 + 67, 1390 + 67, pumpTexture.Width, pumpTexture.Height), null, Color.White, -pump.PumpRotation, new Vector2(pumpTexture.Width / 2, pumpTexture.Height / 2), SpriteEffects.None, 0f);
-            spriteBatch.Draw(pumpTexture, new Rectangle(2047 + 67, 1393 + 67, pumpTexture.Width, pumpTexture.Height), null, Color.White, pump.PumpRotation, new Vector2(pumpTexture.Width / 2, pumpTexture.Height / 2), SpriteEffects.FlipHorizontally, 0f);
-
-            spriteBatch.Draw(turbineTexture, new Rectangle(421, 1481, turbineTexture.Width, turbineTexture.Height), null, Color.White, -turbine.TurbineRotation, new Vector2(turbineTexture.Width / 2, turbineTexture.Height / 2), SpriteEffects.None, 0f);
-
-            spriteBatch.Draw(pumpSliderBackgroundTexture, new Rectangle(2317, 1172, pumpSliderBackgroundTexture.Width, pumpSliderBackgroundTexture.Height), Color.White);
-            spriteBatch.Draw(pumpSliderKnobTexture, pumpSlider.KnobRectangle, Color.White);
-            //**********************   TEMP CODE   *****************************
-            //spriteBatch.Draw(controlRodTexture, new Rectangle(1497, 509, controlRodTexture.Width, controlRodTexture.Height), Color.White);
-            //for (int i = 0; i < 5; i++)
-            //{
-            //    spriteBatch.Draw(controlRodTexture, new Rectangle(1497 + i * 43, 509 + i * 80, controlRodTexture.Width, controlRodTexture.Height), Color.White);
-            //}
-            
-            for (int i = 0; i < 5; i++)
-            {
-                for (int j = 0; j < 5; j++)
-                {
-                    Cell cell = plant.core.cells[j, i];
-                    spriteBatch.DrawString(defaultFont, $"CELL [{j},{i}]: temp:{Math.Round(cell.Temp, 3)},promptFlux = {Math.Round(cell.PromptRate, 3)}, delayedFlux = {Math.Round(cell.DelayedRate, 3)}, moderation = {Math.Round(cell.ModerationPercent, 3)},nonreactive = {Math.Round(cell.NonReactiveAbsorbtionPercent, 3)} , reactive = {Math.Round(cell.ReactiveAbsorbtionPercent, 3)}, xenon = {Math.Round(cell.Xenon, 3)}, prexenon = {Math.Round(cell.PreXenon, 3)}, delayCrit: {Math.Round(cell.CellDelayedCriticality, 3)}, promptCrit: {Math.Round(cell.CellPromptCriticality, 3)}", new Vector2(0, 30 * (i+ 5*j)), Color.Red);
-                }
-            }
-            spriteBatch.DrawString(defaultFont, $"Power: {Math.Round(plant.core.exactPower, 9)} MW, SteamFlux = {Math.Round(plant.steamFlux, 4)} MW, SeperatorTemp = {Math.Round(plant.seperatorTemp, 4)} MW, inflow = {Math.Round(plant.core.InletFlow, 4)}, outflow = {Math.Round(plant.core.OutletFlow, 4)}", new Vector2(2400, 0), Color.Red);
-            spriteBatch.DrawString(defaultFont, $"TurbinePower: {Math.Round(plant.turbinePower, 9)} MW, TurbineSpeed = {Math.Round(plant.turbineSpeed, 9)}", new Vector2(2400, 30), Color.Red);
-
-
-
-            spriteBatch.Draw(reactivityMeterPromptTexture, new Rectangle(2350, 50, reactivityMeterPromptTexture.Width, reactivityMeterPromptTexture.Height), Color.White);
-            spriteBatch.Draw(reactivityMeterBarTexture, new Rectangle(2356 + reactivtyToPixel(plant.core.PromptCriticality), 60, reactivityMeterBarTexture.Width, reactivityMeterBarTexture.Height), Color.White);
-            
-            spriteBatch.Draw(reactivityMeterDelayedTexture, new Rectangle(2350, 350, reactivityMeterDelayedTexture.Width, reactivityMeterDelayedTexture.Height), Color.White);
-            spriteBatch.Draw(reactivityMeterBarTexture, new Rectangle(2356 + reactivtyToPixel(plant.core.DelayedCriticality), 360, reactivityMeterBarTexture.Width, reactivityMeterBarTexture.Height), Color.White);
-
-            spriteBatch.Draw(PowerBackgroundTexture, new Rectangle(2350, 650, PowerBackgroundTexture.Width, PowerBackgroundTexture.Height), Color.White);
-            int power = Math.Max(Math.Min((int)Math.Round(plant.core.PowerLevel, 0),99999),0);
-            for (int i = 4; i >= 0; i--)
-            {
-                var digit = power / (int)Math.Pow(10, i) % 10;
-                if (digit == 0 && power <= Math.Pow(10, i) && i != 0)
-                {
-                    spriteBatch.Draw(BlankNixieTexture, new Rectangle(2360 + 111 * (4 - i), 660, BlankNixieTexture.Width, BlankNixieTexture.Height), Color.White);
-                }
-                else
-                {
-                    spriteBatch.Draw(PowerNixieTextures[digit], new Rectangle(2360 + 111 * (4 - i), 660, PowerNixieTextures[digit].Width, PowerNixieTextures[digit].Height), Color.White);
-                }
-            }
-            //******************************************************************
 
             Texture2D videoTexture = null;
 
@@ -313,7 +254,80 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             {
                 spriteBatch.Draw(videoTexture, new Rectangle(0, 0, plantTexture.Width, plantTexture.Height), Color.White);
             }
+            else
+            {
 
+                spriteBatch.Draw(plantTexture, new Vector2(0, 0), Color.White); //draw background
+
+                //Draw all controll rods
+                foreach (ControlRod rod in controlRods)
+                {
+                    spriteBatch.Draw(controlRodTexture, rod.rectangle, Color.White);
+                    if (rod.insertedPercentage != rod.targetPercentage)
+                    {
+                        spriteBatch.Draw(controlRodTargetTexture, rod.targetRectangle, Color.White);
+                    }
+                }
+
+                foreach (Bubble bubble in bubbles.BubblesList)
+                {
+                    spriteBatch.Draw(bubbleTexture, new Rectangle((int)(bubble.Pos.X + bubble.Offset.X), (int)(bubble.Pos.Y + bubble.Offset.Y), bubbleTexture.Width, bubbleTexture.Height), null, bubble.BubbleColor, 0f, new Vector2(bubbleTexture.Width / 2, bubbleTexture.Height / 2), SpriteEffects.None, 0f);
+
+                }
+                spriteBatch.Draw(plantBubbleClipTexture, new Vector2(0, 0), Color.White); //cover bubbles
+
+                spriteBatch.Draw(az5Texture, new Rectangle(2000, 20, az5Texture.Width, az5Texture.Height), Color.White);
+
+                spriteBatch.Draw(pumpTexture, new Rectangle(1011 + 67, 1390 + 67, pumpTexture.Width, pumpTexture.Height), null, Color.White, -pump.PumpRotation, new Vector2(pumpTexture.Width / 2, pumpTexture.Height / 2), SpriteEffects.None, 0f);
+                spriteBatch.Draw(pumpTexture, new Rectangle(2047 + 67, 1393 + 67, pumpTexture.Width, pumpTexture.Height), null, Color.White, pump.PumpRotation, new Vector2(pumpTexture.Width / 2, pumpTexture.Height / 2), SpriteEffects.FlipHorizontally, 0f);
+
+                spriteBatch.Draw(turbineTexture, new Rectangle(421, 1481, turbineTexture.Width, turbineTexture.Height), null, Color.White, -turbine.TurbineRotation, new Vector2(turbineTexture.Width / 2, turbineTexture.Height / 2), SpriteEffects.None, 0f);
+
+                spriteBatch.Draw(pumpSliderBackgroundTexture, new Rectangle(2317, 1172, pumpSliderBackgroundTexture.Width, pumpSliderBackgroundTexture.Height), Color.White);
+                spriteBatch.Draw(pumpSliderKnobTexture, pumpSlider.KnobRectangle, Color.White);
+                //**********************   TEMP CODE   *****************************
+                //spriteBatch.Draw(controlRodTexture, new Rectangle(1497, 509, controlRodTexture.Width, controlRodTexture.Height), Color.White);
+                //for (int i = 0; i < 5; i++)
+                //{
+                //    spriteBatch.Draw(controlRodTexture, new Rectangle(1497 + i * 43, 509 + i * 80, controlRodTexture.Width, controlRodTexture.Height), Color.White);
+                //}
+
+                for (int i = 0; i < 5; i++)
+                {
+                    for (int j = 0; j < 5; j++)
+                    {
+                        Cell cell = plant.core.cells[j, i];
+                        //spriteBatch.DrawString(defaultFont, $"CELL [{j},{i}]: temp:{Math.Round(cell.Temp, 3)},promptFlux = {Math.Round(cell.PromptRate, 3)}, delayedFlux = {Math.Round(cell.DelayedRate, 3)}, moderation = {Math.Round(cell.ModerationPercent, 3)},nonreactive = {Math.Round(cell.NonReactiveAbsorbtionPercent, 3)} , reactive = {Math.Round(cell.ReactiveAbsorbtionPercent, 3)}, xenon = {Math.Round(cell.Xenon, 3)}, prexenon = {Math.Round(cell.PreXenon, 3)}, delayCrit: {Math.Round(cell.CellDelayedCriticality, 3)}, promptCrit: {Math.Round(cell.CellPromptCriticality, 3)}", new Vector2(0, 30 * (i + 5 * j)), Color.Red);
+                    }
+                }
+                //spriteBatch.DrawString(defaultFont, $"Power: {Math.Round(plant.core.exactPower, 9)} MW, SteamFlux = {Math.Round(plant.steamFlux, 4)} MW, SeperatorTemp = {Math.Round(plant.seperatorTemp, 4)} MW, inflow = {Math.Round(plant.core.InletFlow, 4)}, outflow = {Math.Round(plant.core.OutletFlow, 4)}", new Vector2(2400, 0), Color.Red);
+                //spriteBatch.DrawString(defaultFont, $"TurbinePower: {Math.Round(plant.turbinePower, 9)} MW, TurbineSpeed = {Math.Round(plant.turbineSpeed, 9)}", new Vector2(2400, 30), Color.Red);
+
+
+
+                spriteBatch.Draw(reactivityMeterPromptTexture, new Rectangle(2350, 50, reactivityMeterPromptTexture.Width, reactivityMeterPromptTexture.Height), Color.White);
+                spriteBatch.Draw(reactivityMeterBarTexture, new Rectangle(2356 + reactivtyToPixel(plant.core.PromptCriticality), 60, reactivityMeterBarTexture.Width, reactivityMeterBarTexture.Height), Color.White);
+
+                spriteBatch.Draw(reactivityMeterDelayedTexture, new Rectangle(2350, 350, reactivityMeterDelayedTexture.Width, reactivityMeterDelayedTexture.Height), Color.White);
+                spriteBatch.Draw(reactivityMeterBarTexture, new Rectangle(2356 + reactivtyToPixel(plant.core.DelayedCriticality), 360, reactivityMeterBarTexture.Width, reactivityMeterBarTexture.Height), Color.White);
+
+                spriteBatch.Draw(PowerBackgroundTexture, new Rectangle(2350, 650, PowerBackgroundTexture.Width, PowerBackgroundTexture.Height), Color.White);
+                int power = Math.Max(Math.Min((int)Math.Round(plant.core.PowerLevel, 0), 99999), 0);
+                for (int i = 4; i >= 0; i--)
+                {
+                    var digit = power / (int)Math.Pow(10, i) % 10;
+                    if (digit == 0 && power <= Math.Pow(10, i) && i != 0)
+                    {
+                        spriteBatch.Draw(BlankNixieTexture, new Rectangle(2360 + 111 * (4 - i), 660, BlankNixieTexture.Width, BlankNixieTexture.Height), Color.White);
+                    }
+                    else
+                    {
+                        spriteBatch.Draw(PowerNixieTextures[digit], new Rectangle(2360 + 111 * (4 - i), 660, PowerNixieTextures[digit].Width, PowerNixieTextures[digit].Height), Color.White);
+                    }
+                }
+                //******************************************************************
+            }
+            
             spriteBatch.End();
 
 
