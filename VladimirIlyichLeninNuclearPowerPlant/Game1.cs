@@ -31,6 +31,9 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         Texture2D BlankNixieTexture;
         List<Texture2D> PowerNixieTextures;
 
+        Texture2D pumpSliderKnobTexture;
+        Texture2D pumpSliderBackgroundTexture;
+
         SpriteFont defaultFont;
 
         Matrix scaleMatrix;
@@ -43,6 +46,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         Plant plant;
         Bubbles bubbles;
         Pump pump;
+        PumpSlider pumpSlider;
 
         public Game1()
         {
@@ -126,6 +130,11 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             {
                 controlRods.Add(new ControlRod(new Rectangle(1498 + (i * 43), 761, 27, 810), new Point(controlRodTexture.Width, controlRodTexture.Height)));
             }
+
+            pumpSliderKnobTexture = Content.Load<Texture2D>("pump_control_anim");
+            pumpSliderBackgroundTexture = Content.Load<Texture2D>("pump_control_background");
+
+            pumpSlider = new PumpSlider(new Rectangle(2410 - pumpSliderKnobTexture.Width / 2, 22, pumpSliderKnobTexture.Width, pumpSliderKnobTexture.Height), 1549 - pumpSliderKnobTexture.Height / 2, 1198 - pumpSliderKnobTexture.Height / 2, (int)pump.PumpSpeedPercentage);
         }
 
         /// <summary>
@@ -167,8 +176,10 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             }
             plant.update(gameTime);
 
+            pumpSlider.Update(gameMousePos);
+            pump.PumpSpeedPercentage = pumpSlider.Percent;
             pump.Update(gameTime);
-
+            
             bubbles.Update(gameTime);
 
             base.Update(gameTime);
@@ -213,6 +224,9 @@ namespace VladimirIlyichLeninNuclearPowerPlant
 
             spriteBatch.Draw(pumpTexture, new Rectangle(1011 + 67, 1390 + 67, pumpTexture.Width, pumpTexture.Height), null, Color.White, -pump.PumpRotation, new Vector2(pumpTexture.Width / 2, pumpTexture.Height / 2), SpriteEffects.None, 0f);
             spriteBatch.Draw(pumpTexture, new Rectangle(2047 + 67, 1393 + 67, pumpTexture.Width, pumpTexture.Height), null, Color.White, pump.PumpRotation, new Vector2(pumpTexture.Width / 2, pumpTexture.Height / 2), SpriteEffects.FlipHorizontally, 0f);
+
+            spriteBatch.Draw(pumpSliderBackgroundTexture, new Rectangle(2317, 1172, pumpSliderBackgroundTexture.Width, pumpSliderBackgroundTexture.Height), Color.White);
+            spriteBatch.Draw(pumpSliderKnobTexture, pumpSlider.KnobRectangle, Color.White);
             //**********************   TEMP CODE   *****************************
             //spriteBatch.Draw(controlRodTexture, new Rectangle(1497, 509, controlRodTexture.Width, controlRodTexture.Height), Color.White);
             //for (int i = 0; i < 5; i++)
