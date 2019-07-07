@@ -139,10 +139,51 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             };
             BubblesList = new List<Bubble>();
 
-            //foreach (KeyValuePair<string,Pipe> pipe in pipes)
-            //{
+            //start pipes with some bubbles in them already
+            for (int i = 0; i < 1000; i++)
+            {
+                foreach (KeyValuePair<string, Pipe> pipe in pipes)
+                {
+                    Bubble bubble = new Bubble(pipe.Value.Waypoints[0], pipe.Key, 1, new Vector2(rand.Next(-offsetRange, offsetRange + 1), rand.Next(-offsetRange, offsetRange + 1)), pipe.Value.BubbleColor);
+                    BubblesList.Add(bubble);
+                }
 
-            //}
+                List<Bubble> deadBubbles = new List<Bubble>();
+
+                foreach (Bubble bubble in BubblesList)
+                {
+                    Pipe pipe = pipes[bubble.PathName];
+                    Vector2 direction = Vector2.Normalize(pipe.Waypoints[bubble.NextWaypointIndex] - bubble.Pos);
+                    bubble.Pos += direction * pipe.FlowVelocity * 0.04f;
+
+                    if (bubble.PathName == "turbineWaterRightPath")
+                    {
+                        if ((bubble.Pos.X > 1030 && bubble.Pos.X < 1120) || (bubble.Pos.X > 2070 && bubble.Pos.X < 2160))
+                        {
+                            bubble.BubbleColor = new Color(0, 0, 0, 0);
+                        }
+                        else
+                        {
+                            bubble.BubbleColor = waterColor;
+                        }
+                    }
+
+                    if (Math.Abs(Vector2.Dot(direction, Vector2.Normalize(pipe.Waypoints[bubble.NextWaypointIndex] - bubble.Pos)) + 1) < 0.1f)
+                    {
+                        bubble.Pos = pipe.Waypoints[bubble.NextWaypointIndex];
+                        bubble.NextWaypointIndex++;
+                        if (bubble.NextWaypointIndex >= pipe.Waypoints.Length)
+                        {
+                            deadBubbles.Add(bubble);
+                        }
+                    }
+                }
+
+                foreach (var bubble in deadBubbles)
+                {
+                    BubblesList.Remove(bubble);
+                }
+            }
         }
 
         public void Update(GameTime gameTime)
