@@ -51,6 +51,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         Plant plant;
         Bubbles bubbles;
         Pump pump;
+        Turbine turbine;
         PumpSlider pumpSlider;
 
         bool ended = false;
@@ -91,6 +92,8 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             bubbles = new Bubbles();
 
             pump = new Pump(50);
+
+            turbine = new Turbine(100);
 
             base.Initialize();
         }
@@ -192,7 +195,9 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                 pumpSlider.Update(gameMousePos);
                 pump.PumpSpeedPercentage = pumpSlider.Percent;
                 pump.Update(gameTime);
-            
+
+                turbine.Update(gameTime);
+
                 bubbles.Update(gameTime);
                 
             }
@@ -253,6 +258,8 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             spriteBatch.Draw(pumpTexture, new Rectangle(1011 + 67, 1390 + 67, pumpTexture.Width, pumpTexture.Height), null, Color.White, -pump.PumpRotation, new Vector2(pumpTexture.Width / 2, pumpTexture.Height / 2), SpriteEffects.None, 0f);
             spriteBatch.Draw(pumpTexture, new Rectangle(2047 + 67, 1393 + 67, pumpTexture.Width, pumpTexture.Height), null, Color.White, pump.PumpRotation, new Vector2(pumpTexture.Width / 2, pumpTexture.Height / 2), SpriteEffects.FlipHorizontally, 0f);
 
+            spriteBatch.Draw(turbineTexture, new Rectangle(421, 1481, turbineTexture.Width, turbineTexture.Height), null, Color.White, -turbine.TurbineRotation, new Vector2(turbineTexture.Width / 2, turbineTexture.Height / 2), SpriteEffects.None, 0f);
+
             spriteBatch.Draw(pumpSliderBackgroundTexture, new Rectangle(2317, 1172, pumpSliderBackgroundTexture.Width, pumpSliderBackgroundTexture.Height), Color.White);
             spriteBatch.Draw(pumpSliderKnobTexture, pumpSlider.KnobRectangle, Color.White);
             //**********************   TEMP CODE   *****************************
@@ -261,8 +268,6 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             //{
             //    spriteBatch.Draw(controlRodTexture, new Rectangle(1497 + i * 43, 509 + i * 80, controlRodTexture.Width, controlRodTexture.Height), Color.White);
             //}
-            spriteBatch.Draw(turbineTexture, new Rectangle(421, 1481, turbineTexture.Width, turbineTexture.Height), null, Color.White, -(float)gameTime.TotalGameTime.TotalSeconds * 7, new Vector2(turbineTexture.Width / 2, turbineTexture.Height / 2), SpriteEffects.None, 0f);
-            
             
             for (int i = 0; i < 5; i++)
             {
