@@ -75,6 +75,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                 if (controlRodSlot.Contains(mousePosition))
                 {
                     targetRectangle.Y += (int)((scrollWheelPos - prevScrollWheelPos) * scrollWheelRate);
+                    targetRectangle.Y = MathHelper.Clamp(targetRectangle.Y, minY, maxY);
                 }
             }
             else if (dragging != true)
