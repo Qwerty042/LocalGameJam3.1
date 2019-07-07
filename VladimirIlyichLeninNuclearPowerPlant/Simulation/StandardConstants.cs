@@ -28,7 +28,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
 
         public double FluxPerReaction { get; } = 2.5;
 
-        public double PreXenonProductionRateCoefficient { get; } = 0.03;
+        public double PreXenonProductionRateCoefficient { get; } = 0.015;
         public double PreXenonDecayTimeConstant { get; } = 30;
         public double XenonDecayTimeConstant { get; } = 90;
         public double XenonBuringRateCoefficent { get; } = 1;
@@ -42,7 +42,11 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
         public double FeedwaterThermalTransferCoefficient { get; } = 0.1; // MW.K^1 per cell
         public double ReactorThermalCapacity { get; } = 5; // MJ/K per cell
         public double FeedwaterThermalCapacity { get; } = 0.5; // MJ/K  per cell
-        public double WaterPerCell { get; } = 0.5; // kg  per cell
+        public double WaterPerCell { get; } = 120; // kg  per cell
+        public double WaterThermalCapacity { get; } = 4200; // J/kg/C  per cell
+        public double WaterInSeperator { get; } = 50000; // kg
+        public double BoilRatePerDegree { get; } = 40; // MW/C
+        public double TurbineEnergy { get; } = 10000; // MJ
 
         public double SpontaneousFlux { get; } = 0.005;//from natural, random decay
 

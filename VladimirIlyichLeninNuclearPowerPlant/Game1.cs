@@ -269,10 +269,11 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                 for (int j = 0; j < 5; j++)
                 {
                     Cell cell = plant.core.cells[j, i];
-                    spriteBatch.DrawString(defaultFont, $"Cell [{j},{i}]: temp:{Math.Round(cell.Temp, 3)},promptFlux = {Math.Round(cell.PromptRate, 3)}, delayedFlux = {Math.Round(cell.DelayedRate, 3)}, moderation = {Math.Round(cell.ModerationPercent, 3)},nonreactive = {Math.Round(cell.NonReactiveAbsorbtionPercent, 3)} , reactive = {Math.Round(cell.ReactiveAbsorbtionPercent, 3)}, xenon = {Math.Round(cell.Xenon, 3)}, prexenon = {Math.Round(cell.PreXenon, 3)}, delayCrit: {Math.Round(cell.CellDelayedCriticality, 3)}, promptCrit: {Math.Round(cell.CellPromptCriticality, 3)}", new Vector2(0, 30 * (i+ 5*j)), Color.Red);
+                    spriteBatch.DrawString(defaultFont, $"CELL [{j},{i}]: temp:{Math.Round(cell.Temp, 3)},promptFlux = {Math.Round(cell.PromptRate, 3)}, delayedFlux = {Math.Round(cell.DelayedRate, 3)}, moderation = {Math.Round(cell.ModerationPercent, 3)},nonreactive = {Math.Round(cell.NonReactiveAbsorbtionPercent, 3)} , reactive = {Math.Round(cell.ReactiveAbsorbtionPercent, 3)}, xenon = {Math.Round(cell.Xenon, 3)}, prexenon = {Math.Round(cell.PreXenon, 3)}, delayCrit: {Math.Round(cell.CellDelayedCriticality, 3)}, promptCrit: {Math.Round(cell.CellPromptCriticality, 3)}", new Vector2(0, 30 * (i+ 5*j)), Color.Red);
                 }
             }
-            spriteBatch.DrawString(defaultFont, $"Power: {Math.Round(plant.core.PowerLevel,4)} MW, inflow = {Math.Round(plant.core.InletFlow, 4)}, outflow = {Math.Round(plant.core.OutletFlow, 4)}", new Vector2(2400, 0), Color.Red);
+            spriteBatch.DrawString(defaultFont, $"Power: {Math.Round(plant.core.exactPower, 9)} MW, SteamFlux = {Math.Round(plant.steamFlux, 4)} MW, SeperatorTemp = {Math.Round(plant.seperatorTemp, 4)} MW, inflow = {Math.Round(plant.core.InletFlow, 4)}, outflow = {Math.Round(plant.core.OutletFlow, 4)}", new Vector2(2400, 0), Color.Red);
+            spriteBatch.DrawString(defaultFont, $"TurbinePower: {Math.Round(plant.turbinePower, 9)} MW, TurbineSpeed = {Math.Round(plant.turbineSpeed, 9)}", new Vector2(2400, 30), Color.Red);
 
 
 
