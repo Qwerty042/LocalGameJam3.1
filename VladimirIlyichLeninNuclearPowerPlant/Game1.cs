@@ -54,6 +54,8 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         Turbine turbine;
         PumpSlider pumpSlider;
 
+        KeyboardState prevKeyboardState;
+
         bool ended = false;
 
         public Game1()
@@ -68,6 +70,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             //Windowed Resolution
             graphics.PreferredBackBufferHeight = 900;
             graphics.PreferredBackBufferWidth = 1600;
+
 
             Content.RootDirectory = "Content";
 
@@ -94,6 +97,8 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             pump = new Pump(50);
 
             turbine = new Turbine(100);
+
+            prevKeyboardState = new KeyboardState();
 
             base.Initialize();
         }
@@ -211,6 +216,27 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                 bubbles.Update(gameTime);
                 
             }
+            
+            KeyboardState keyboardState = Keyboard.GetState();
+
+            if (prevKeyboardState.IsKeyUp(Keys.F) && keyboardState.IsKeyDown(Keys.F))
+            {
+                if (graphics.IsFullScreen)
+                {
+                    graphics.ToggleFullScreen();
+                    graphics.PreferredBackBufferHeight = 900;
+                    graphics.PreferredBackBufferWidth = 1600;
+                }
+                else
+                {
+                    graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+                    graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+                    graphics.ToggleFullScreen();
+                }
+                graphics.ApplyChanges();
+            }
+
+            prevKeyboardState = keyboardState;
 
             base.Update(gameTime);
 
