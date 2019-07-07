@@ -36,6 +36,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
         private double totalEmitted = 0;
         private double totalPrompt = 0;
         private double totalPromptAndDelayed = 0;
+        public double exactPower = 0;
 
 
         public Core(List<ControlRod> controlRods, IGameConstants constants)
@@ -74,6 +75,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
                     transferTemp(deltaT);
                     waterFlowSim(deltaT);
                     powerEstimate();
+                    exactPower = totalEmitted * constants.ReactivityThermalGenerationCoefficient / deltaT;
                 }
             }
         }
@@ -173,7 +175,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
 
                 var totalFlux = constants.SpontaneousFlux * deltaT + emittedDelayedFlux + cell.PromptRate * deltaT;
                 cell.PreXenon += totalFlux * constants.PreXenonProductionRateCoefficient;
-                cell.Temp += totalFlux * constants.ReactivityThermalGenerationCoefficient;
+                cell.Temp += totalFlux * constants.ReactivityThermalGenerationCoefficient / constants.ReactorThermalCapacity;
                 cell.CellEmitted = constants.SpontaneousFlux * deltaT + emittedDelayedFlux + cell.PromptRate * deltaT;
                 totalEmitted += cell.CellEmitted;
                 cell.PromptRate = 0;
@@ -354,7 +356,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
             {
                 var transferEnergy = (cell.Temp - cell.WaterTemp) * constants.FeedwaterThermalTransferCoefficient;
                 cell.Temp -= transferEnergy / constants.ReactorThermalCapacity;
-                cell.WaterTemp += transferEnergy / constants.FeedwaterThermalCapacity;
+                cell.WaterTemp += transferEnergy / (constants.WaterPerCell * constants.WaterThermalCapacity) * 1000000;
             }
         }
 
@@ -365,7 +367,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
             {
                 var boilingPoint = 100 * Math.Pow(_InletPressure, 0.2432);
                 cell.SteamPercent = Math.Max(Math.Min((cell.WaterTemp - boilingPoint)/2, 100), 0);
-                cell.WaterResistance = 0.2 + 2*cell.SteamPercent/100;
+                cell.WaterResistance = 0.01 + 0*cell.SteamPercent/100;
             }
             
             double sumFlow = 0;
@@ -400,12 +402,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
             _OutletFlow = sumFlow;
             _OutletTemp = sumWeightedTemp / sumFlow;
 
-            foreach (var cell in cells)
-            {
-                var transferEnergy = (cell.Temp - cell.WaterTemp) * constants.FeedwaterThermalTransferCoefficient;
-                cell.Temp -= transferEnergy / constants.ReactorThermalCapacity;
-                cell.WaterTemp += transferEnergy / constants.FeedwaterThermalCapacity;
-            }
+            
         }
         void powerEstimate()
         {
