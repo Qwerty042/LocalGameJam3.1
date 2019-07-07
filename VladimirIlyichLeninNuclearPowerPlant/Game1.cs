@@ -209,11 +209,11 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                 {
                     rod.Update(gameMousePos, gameTime);
                 }
-                plant.pumpPressure = 10 + 0.4 * pump.PumpSpeedPercentage;
-                bubbles.SetFlowVelocity("pumpLeftPath", (float)plant.core.InletFlow / 15);
-                bubbles.SetFlowVelocity("pumpRightPath", (float)plant.core.InletFlow / 15);
-                bubbles.SetFlowVelocity("coreSteamLeftPath", (float)plant.core.OutletFlow / 10);
-                bubbles.SetFlowVelocity("coreSteamRightPath", (float)plant.core.OutletFlow / 10);
+                plant.pumpPressure = 18 + 0.7 * pump.PumpSpeedPercentage;
+                bubbles.SetFlowVelocity("pumpLeftPath", (float)plant.core.InletFlow / 80);
+                bubbles.SetFlowVelocity("pumpRightPath", (float)plant.core.InletFlow / 80);
+                bubbles.SetFlowVelocity("coreSteamLeftPath", (float)plant.core.OutletFlow / 40);
+                bubbles.SetFlowVelocity("coreSteamRightPath", (float)plant.core.OutletFlow / 40);
                 bubbles.SetFlowVelocity("turbineSteamLeftPath", (float)plant.steamFlux / 10);
                 bubbles.SetFlowVelocity("turbineSteamRightPath", (float)plant.steamFlux / 10);
                 bubbles.SetFlowVelocity("turbineWaterLeftPath", (float)plant.steamFlux / 20);

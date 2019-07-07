@@ -374,7 +374,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
             {
                 var boilingPoint = 100 * Math.Pow(_InletPressure, 0.2432);
                 cell.SteamPercent = Math.Max(Math.Min((cell.WaterTemp - boilingPoint)/2, 100), 0);
-                cell.WaterResistance = 0.005 + 0.04*cell.SteamPercent/100;
+                cell.WaterResistance = 0.002 + 0.04*cell.SteamPercent/100;
             }
             
             double sumFlow = 0;

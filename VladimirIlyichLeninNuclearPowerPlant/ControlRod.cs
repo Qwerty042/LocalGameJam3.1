@@ -18,7 +18,9 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         private int dragYOffset;
         private int prevScrollWheelPos;
         private int scrollWheelPos;
-        private float scrollWheelRate = 0.01f;
+        private float scrollWheelRate = 0.005f;
+        private float shiftMultiplier = 0.1f;
+        private float ctrlMultiplier = 0.1f;
 
         public Rectangle rectangle;
         public Rectangle targetRectangle;
@@ -37,6 +39,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             maxY = _controlRodSlot.Bottom - _controlRodSize.Y;
             targetRectangle = rectangle;
             targetRectangle.Y = maxY;
+            targetPercentage = 100;
             insertedPercentage = 100;
             prevScrollWheelPos = 0;
         }
@@ -44,6 +47,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         public void scram()
         {
             targetRectangle.Y = maxY;
+            targetPercentage = 100;
         }
 
 
@@ -74,8 +78,9 @@ namespace VladimirIlyichLeninNuclearPowerPlant
 
                 if (controlRodSlot.Contains(mousePosition))
                 {
-                    targetRectangle.Y += (int)((scrollWheelPos - prevScrollWheelPos) * scrollWheelRate);
-                    targetRectangle.Y = MathHelper.Clamp(targetRectangle.Y, minY, maxY);
+                    targetPercentage += ((scrollWheelPos - prevScrollWheelPos) * scrollWheelRate * (Keyboard.GetState().IsKeyDown(Keys.LeftShift) ? shiftMultiplier : 1) * (Keyboard.GetState().IsKeyDown(Keys.LeftControl) ? ctrlMultiplier : 1));
+                    targetPercentage = MathHelper.Clamp((float)targetPercentage, 0, 100);
+                    targetRectangle.Y = (int)(targetPercentage / 100 * (maxY - minY) + minY);
                 }
             }
             else if (dragging != true)
@@ -112,8 +117,8 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                 {
                     targetRectangle.Y = dragYPos;
                 }
+                targetPercentage = (targetRectangle.Y - minY) * 100 / (maxY - minY);
             }
-            targetPercentage = (targetRectangle.Y - minY) * 100 / (maxY - minY);
 
             if (Math.Abs(insertedPercentage - targetPercentage) < movementSpeed * gameTime.ElapsedGameTime.TotalSeconds)
             {
