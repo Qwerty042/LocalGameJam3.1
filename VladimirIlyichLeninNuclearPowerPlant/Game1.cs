@@ -29,13 +29,20 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         Texture2D reactivityMeterBarTexture;
 
         Texture2D PowerBackgroundTexture;
+        Texture2D TurbinePowerBackgroundTexture;
         Texture2D BlankNixieTexture;
         List<Texture2D> PowerNixieTextures;
 
         Texture2D pumpSliderKnobTexture;
         Texture2D pumpSliderBackgroundTexture;
 
+        Texture2D coreTempTexture;
+        Texture2D seperatorTempTexture;
+        Texture2D SteamTempTexture;
+        Texture2D turbineSpeedTexture;
+
         SpriteFont defaultFont;
+        SpriteFont niceFont;
 
         Matrix scaleMatrix;
 
@@ -129,12 +136,18 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             reactivityMeterDelayedTexture = Content.Load<Texture2D>("reactivityMeterDelayed");
             reactivityMeterBarTexture = Content.Load<Texture2D>("reactivityMeterBar");
 
+            coreTempTexture = Content.Load<Texture2D>("readout_coreTemp");
+            seperatorTempTexture = Content.Load<Texture2D>("readout_separator");
+            SteamTempTexture = Content.Load<Texture2D>("readout_steamTemp");
+            turbineSpeedTexture = Content.Load<Texture2D>("readout_turbineSpeed");
+
             video = Content.Load<Video>("Ending_film");
             videoStall = Content.Load<Video>("Stall_Ending_film");
             player = new VideoPlayer();
 
 
-            PowerBackgroundTexture = Content.Load<Texture2D>("PowerBG");
+            PowerBackgroundTexture = Content.Load<Texture2D>("powerMeter_reactor");
+            TurbinePowerBackgroundTexture = Content.Load<Texture2D>("powerMeter_turbine1");
             BlankNixieTexture = Content.Load<Texture2D>("NixieOff");
             for(int i = 0; i < 10; i++)
             {
@@ -144,6 +157,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             az5Rectangle = new Rectangle(2000, 20, az5Texture.Width, az5Texture.Height);
 
             defaultFont = Content.Load<SpriteFont>("Arial");
+            niceFont = Content.Load<SpriteFont>("Phosphate");
             //Create control rod instances and add to list of control rods
             for (int i = 0; i < 5; i++)
             {
@@ -302,7 +316,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                 }
                 spriteBatch.Draw(plantBubbleClipTexture, new Vector2(0, 0), Color.White); //cover bubbles
 
-                spriteBatch.Draw(az5Texture, new Rectangle(2000, 20, az5Texture.Width, az5Texture.Height), Color.White);
+                spriteBatch.Draw(az5Texture, new Rectangle(2950, 650, az5Texture.Width, az5Texture.Height), Color.White);
 
                 spriteBatch.Draw(pumpTexture, new Rectangle(1011 + 67, 1390 + 67, pumpTexture.Width, pumpTexture.Height), null, Color.White, -pump.PumpRotation, new Vector2(pumpTexture.Width / 2, pumpTexture.Height / 2), SpriteEffects.None, 0f);
                 spriteBatch.Draw(pumpTexture, new Rectangle(2047 + 67, 1393 + 67, pumpTexture.Width, pumpTexture.Height), null, Color.White, pump.PumpRotation, new Vector2(pumpTexture.Width / 2, pumpTexture.Height / 2), SpriteEffects.FlipHorizontally, 0f);
@@ -351,6 +365,32 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                         spriteBatch.Draw(PowerNixieTextures[digit], new Rectangle(2360 + 111 * (4 - i), 660, PowerNixieTextures[digit].Width, PowerNixieTextures[digit].Height), Color.White);
                     }
                 }
+
+                spriteBatch.Draw(TurbinePowerBackgroundTexture, new Rectangle(50, 950, TurbinePowerBackgroundTexture.Width, TurbinePowerBackgroundTexture.Height), Color.White);
+                power = Math.Max(Math.Min((int)Math.Round(plant.turbinePower, 0), 99999), 0);
+                for (int i = 4; i >= 0; i--)
+                {
+                    var digit = power / (int)Math.Pow(10, i) % 10;
+                    if (digit == 0 && power <= Math.Pow(10, i) && i != 0)
+                    {
+                        spriteBatch.Draw(BlankNixieTexture, new Rectangle(60 + 111 * (4 - i), 960, BlankNixieTexture.Width, BlankNixieTexture.Height), Color.White);
+                    }
+                    else
+                    {
+                        spriteBatch.Draw(PowerNixieTextures[digit], new Rectangle(60 + 111 * (4 - i), 960, PowerNixieTextures[digit].Width, PowerNixieTextures[digit].Height), Color.White);
+                    }
+                }
+
+
+                spriteBatch.Draw(coreTempTexture, new Rectangle(2560, 950, coreTempTexture.Width, coreTempTexture.Height), Color.White);
+                spriteBatch.DrawString(niceFont, $"{Math.Round(plant.core.avgTemp,1)} C", new Vector2(2900, 995), Color.Black);
+                spriteBatch.Draw(SteamTempTexture, new Rectangle(2560, 1050, SteamTempTexture.Width, SteamTempTexture.Height), Color.White);
+                spriteBatch.DrawString(niceFont, $"{Math.Round(plant.core.OutletTemp, 1)} C", new Vector2(2900, 1095), Color.Black);
+                spriteBatch.Draw(seperatorTempTexture, new Rectangle(2560, 1150, seperatorTempTexture.Width, seperatorTempTexture.Height), Color.White);
+                spriteBatch.DrawString(niceFont, $"{Math.Round(plant.seperatorTemp, 1)} C", new Vector2(2900, 1195), Color.Black);
+                spriteBatch.Draw(turbineSpeedTexture, new Rectangle(2560, 1250, turbineSpeedTexture.Width, turbineSpeedTexture.Height), Color.White);
+                spriteBatch.DrawString(niceFont, $"{Math.Round(plant.turbineSpeed * 100, 1)} %", new Vector2(2900, 1295), Color.Black);
+                
                 //******************************************************************
             }
             

@@ -37,6 +37,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
         private double totalPrompt = 0;
         private double totalPromptAndDelayed = 0;
         public double exactPower = 0;
+        public double avgTemp = 0;
 
 
         public Core(List<ControlRod> controlRods, IGameConstants constants)
@@ -76,6 +77,12 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
                     waterFlowSim(deltaT);
                     powerEstimate();
                     exactPower = totalEmitted * constants.ReactivityThermalGenerationCoefficient / deltaT;
+                    double sumTemp = 0;
+                    foreach(var cell in cells)
+                    {
+                        sumTemp += cell.Temp;
+                    }
+                    avgTemp = sumTemp / 25;
                 }
             }
         }
@@ -367,7 +374,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
             {
                 var boilingPoint = 100 * Math.Pow(_InletPressure, 0.2432);
                 cell.SteamPercent = Math.Max(Math.Min((cell.WaterTemp - boilingPoint)/2, 100), 0);
-                cell.WaterResistance = 0.01 + 0*cell.SteamPercent/100;
+                cell.WaterResistance = 0.005 + 0.04*cell.SteamPercent/100;
             }
             
             double sumFlow = 0;
