@@ -16,6 +16,9 @@ namespace VladimirIlyichLeninNuclearPowerPlant
 
         private bool? dragging = null;
         private int dragYOffset;
+        private int prevScrollWheelPos;
+        private int scrollWheelPos;
+        private float scrollWheelRate = 0.01f;
 
         public Rectangle rectangle;
         public Rectangle targetRectangle;
@@ -35,6 +38,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             targetRectangle = rectangle;
             targetRectangle.Y = maxY;
             insertedPercentage = 100;
+            prevScrollWheelPos = 0;
         }
 
         public void scram()
@@ -62,9 +66,16 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             //    }
             //}
 
+            scrollWheelPos = Mouse.GetState().ScrollWheelValue;
+
             if (Mouse.GetState().LeftButton == ButtonState.Released)
             {
                 dragging = false;
+
+                if (controlRodSlot.Contains(mousePosition))
+                {
+                    targetRectangle.Y += (int)((scrollWheelPos - prevScrollWheelPos) * scrollWheelRate);
+                }
             }
             else if (dragging != true)
             {
@@ -117,6 +128,8 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             }
 
             rectangle.Y = (int)(insertedPercentage / 100 * (maxY - minY) + minY);
+
+            prevScrollWheelPos = scrollWheelPos;
         }
 
 
