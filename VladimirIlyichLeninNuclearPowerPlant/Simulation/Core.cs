@@ -15,7 +15,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
         private double _InletTemp = 200;
         public double InletTemp { set { _InletTemp = value; } }
 
-        private double _InletPressure = 10;//bar
+        private double _InletPressure = 20;//bar
         public double InletPressure { set { _InletPressure = value; } }
 
         private double _InletFlow = 10;
@@ -29,6 +29,13 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
 
         private double _PowerLevel = 0;
         public double PowerLevel { get { return _PowerLevel; } }
+
+        public double PromptCriticality { get { return totalPrompt / totalEmitted; } }
+        public double DelayedCriticality { get { return totalPromptAndDelayed / totalEmitted; } }
+
+        private double totalEmitted = 0;
+        private double totalPrompt = 0;
+        private double totalPromptAndDelayed = 0;
 
 
         public Core(List<ControlRod> controlRods, IGameConstants constants)
@@ -53,12 +60,17 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
         {
             if (deltaT > 0)
             {
-                updateControlRodStatus();
-                performNeutronSimulation(deltaT);
-                updateXenon(deltaT);
-                transferTemp(deltaT);
-                waterFlowSim(deltaT);
-                powerEstimate();
+                int subdiv = 50;
+                deltaT /= subdiv;
+                for (int i = 0; i < subdiv; i++)
+                {
+                    updateControlRodStatus();
+                    performNeutronSimulation(deltaT);
+                    updateXenon(deltaT);
+                    transferTemp(deltaT);
+                    waterFlowSim(deltaT);
+                    powerEstimate();
+                }
             }
         }
 
@@ -118,12 +130,19 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
                 reactiveAbsorbNeutrons(deltaT);
                 transferNeutrons();
             }
+            updateCriticality();
         }
 
         void emitNeutrons(double deltaT)
         {
+            totalEmitted = 0;
+            totalPrompt = 0;
+            totalPromptAndDelayed = 0;
             foreach(var cell in cells)
             {
+                cell.CellEmitted = 0;
+                cell.CellDelayedAbsorb = 0;
+                cell.CellPromptAbsorb = 0;
                 var emittedDelayedFlux = cell.DelayedFlux * deltaT / constants.DelayedCriticalityTimeConstant;
                 cell.DelayedFlux -= emittedDelayedFlux;
                 cell.DelayedRate = emittedDelayedFlux / deltaT;
@@ -131,6 +150,8 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
                 var totalFlux = constants.SpontaneousFlux * deltaT + emittedDelayedFlux + cell.PromptRate * deltaT;
                 cell.PreXenon += totalFlux * constants.PreXenonProductionRateCoefficient;
                 cell.Temp += totalFlux * constants.ReactivityThermalGenerationCoefficient;
+                cell.CellEmitted = constants.SpontaneousFlux * deltaT + emittedDelayedFlux + cell.PromptRate * deltaT;
+                totalEmitted += cell.CellEmitted;
                 cell.PromptRate = 0;
                 for (int i = 0; i < 4; i++)
                 {
@@ -188,6 +209,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
                     cell.SlowFlux[i] *= 1 - xenonAbsorption;
                 }
                 cell.Xenon -= absorbed * constants.XenonBuringRateCoefficent;
+                cell.NonReactiveAbsorbtionPercent = (1- (1- totalAbsorptionCoefficent) * (1- xenonAbsorption)) * 100;
             }
         }
 
@@ -208,8 +230,17 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
                     cell.SlowFlux[i] *= 1 - absorption;
                 }
 
-                cell.PromptRate += absorbed / deltaT * (1 - constants.DelayedCriticalityProportion) * constants.FluxPerReaction;
-                cell.DelayedFlux += absorbed * constants.DelayedCriticalityProportion * constants.FluxPerReaction;
+                var promptAbsorb = absorbed * (1 - constants.DelayedCriticalityProportion) * constants.FluxPerReaction;
+                var delayedAbsorb = absorbed * constants.DelayedCriticalityProportion* constants.FluxPerReaction;
+
+                cell.CellPromptAbsorb += promptAbsorb;
+                cell.CellDelayedAbsorb += promptAbsorb + delayedAbsorb;
+
+                totalPrompt += promptAbsorb;
+                totalPromptAndDelayed += promptAbsorb + delayedAbsorb;
+
+                cell.PromptRate += promptAbsorb / deltaT;
+                cell.DelayedFlux += delayedAbsorb;
             }
         }
 
@@ -272,6 +303,14 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
                 }
             }
         }
+        void updateCriticality()
+        {
+            foreach (var cell in cells)
+            {
+                cell.CellDelayedCriticality = cell.CellDelayedAbsorb / cell.CellEmitted;
+                cell.CellPromptCriticality = cell.CellPromptAbsorb / cell.CellEmitted;
+            }
+        }
 
         void updateXenon(double deltaT)
         {
@@ -300,6 +339,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
         {
             foreach (var cell in cells)
             {
+
                 cell.WaterResistance = 0.1;
             }
             
