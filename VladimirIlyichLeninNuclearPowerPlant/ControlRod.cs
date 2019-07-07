@@ -15,9 +15,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
         private readonly int maxY;
 
         private bool? dragging = null;
-        private bool prevLeftClickPressed = false;
         private int dragYOffset;
-        private Point prevMousePosition;
 
         public Rectangle rectangle;
         public Rectangle targetRectangle;
