@@ -154,7 +154,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                 PowerNixieTextures.Add(Content.Load<Texture2D>($"Nixie{i}"));
             }
 
-            az5Rectangle = new Rectangle(2000, 20, az5Texture.Width, az5Texture.Height);
+            az5Rectangle = new Rectangle(2950, 650, az5Texture.Width, az5Texture.Height);
 
             defaultFont = Content.Load<SpriteFont>("Arial");
             niceFont = Content.Load<SpriteFont>("Phosphate");
