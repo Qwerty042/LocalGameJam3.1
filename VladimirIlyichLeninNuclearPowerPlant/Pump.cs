@@ -16,13 +16,15 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             set
             {
                 pumpSpeedPercentage = value;
-                pumpSpeed = (value / 100) * maxPumpSpeed;
+                //pumpSpeed = (value / 100) * maxPumpSpeed;
+                pumpSpeed = (value / 100) * (maxPumpSpeed - minPumpSpeed) + minPumpSpeed;
             }
         }
         private float pumpSpeedPercentage; //0-100%
         public float PumpRotation { get; set; } //rad
         private float pumpSpeed; //rad/sec
-        private const int maxPumpSpeed = 20; //rad/sec
+        private const float maxPumpSpeed = 20; //rad/sec
+        private const float minPumpSpeed = 2;
 
         public Pump(float pumpSpeedPercentage)
         {
