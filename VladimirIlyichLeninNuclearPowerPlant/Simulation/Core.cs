@@ -15,7 +15,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
         private double _InletTemp = 200;
         public double InletTemp { set { _InletTemp = value; } }
 
-        private double _InletPressure = 20;//bar
+        private double _InletPressure = 50;//bar
         public double InletPressure { set { _InletPressure = value; } }
 
         private double _InletFlow = 10;
@@ -60,6 +60,10 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
         {
             if (deltaT > 0)
             {
+                if(checkDed())
+                {
+                    return;
+                }
                 int subdiv = 50;
                 deltaT /= subdiv;
                 for (int i = 0; i < subdiv; i++)
@@ -72,6 +76,26 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
                     powerEstimate();
                 }
             }
+        }
+
+        public bool checkDed()
+        {
+            if(PowerLevel > 99999)
+            {
+                return true;
+            }
+            foreach(var cell in cells)
+            {
+                if (cell.Temp > 1500)
+                {
+                    return true;
+                }
+                if (cell.WaterTemp > 800)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         void updateControlRodStatus()
@@ -339,8 +363,9 @@ namespace VladimirIlyichLeninNuclearPowerPlant.Simulation
         {
             foreach (var cell in cells)
             {
-
-                cell.WaterResistance = 0.1;
+                var boilingPoint = 100 * Math.Pow(_InletPressure, 0.2432);
+                cell.SteamPercent = Math.Max(Math.Min((cell.WaterTemp - boilingPoint)/2, 100), 0);
+                cell.WaterResistance = 0.2 + 1*cell.SteamPercent/100;
             }
             
             double sumFlow = 0;

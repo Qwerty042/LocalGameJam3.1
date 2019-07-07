@@ -220,10 +220,10 @@ namespace VladimirIlyichLeninNuclearPowerPlant
                 for (int j = 0; j < 5; j++)
                 {
                     Cell cell = plant.core.cells[j, i];
-                    spriteBatch.DrawString(defaultFont, $"Cell [{j},{i}]: watertemp:{Math.Round(cell.WaterTemp, 3)},promptFlux = {Math.Round(cell.PromptRate, 3)}, delayedFlux = {Math.Round(cell.DelayedRate, 3)}, moderation = {Math.Round(cell.ModerationPercent, 3)},nonreactive = {Math.Round(cell.NonReactiveAbsorbtionPercent, 3)} , reactive = {Math.Round(cell.ReactiveAbsorbtionPercent, 3)}, xenon = {Math.Round(cell.Xenon, 3)}, prexenon = {Math.Round(cell.PreXenon, 3)}, delayCrit: {Math.Round(cell.CellDelayedCriticality, 3)}, promptCrit: {Math.Round(cell.CellPromptCriticality, 3)}", new Vector2(0, 30 * (i+ 5*j)), Color.Red);
+                    spriteBatch.DrawString(defaultFont, $"Cell [{j},{i}]: temp:{Math.Round(cell.Temp, 3)},promptFlux = {Math.Round(cell.PromptRate, 3)}, delayedFlux = {Math.Round(cell.DelayedRate, 3)}, moderation = {Math.Round(cell.ModerationPercent, 3)},nonreactive = {Math.Round(cell.NonReactiveAbsorbtionPercent, 3)} , reactive = {Math.Round(cell.ReactiveAbsorbtionPercent, 3)}, xenon = {Math.Round(cell.Xenon, 3)}, prexenon = {Math.Round(cell.PreXenon, 3)}, delayCrit: {Math.Round(cell.CellDelayedCriticality, 3)}, promptCrit: {Math.Round(cell.CellPromptCriticality, 3)}", new Vector2(0, 30 * (i+ 5*j)), Color.Red);
                 }
             }
-            spriteBatch.DrawString(defaultFont, $"Power: {Math.Round(plant.core.PowerLevel,4)} MW, prompt criticality = {Math.Round(plant.core.PromptCriticality, 4)}, delayed criticality = {Math.Round(plant.core.DelayedCriticality, 4)}", new Vector2(2400, 0), Color.Red);
+            spriteBatch.DrawString(defaultFont, $"Power: {Math.Round(plant.core.PowerLevel,4)} MW, inflow = {Math.Round(plant.core.InletFlow, 4)}, outflow = {Math.Round(plant.core.OutletFlow, 4)}", new Vector2(2400, 0), Color.Red);
 
 
 
@@ -234,7 +234,7 @@ namespace VladimirIlyichLeninNuclearPowerPlant
             spriteBatch.Draw(reactivityMeterBarTexture, new Rectangle(2356 + reactivtyToPixel(plant.core.DelayedCriticality), 360, reactivityMeterBarTexture.Width, reactivityMeterBarTexture.Height), Color.White);
 
             spriteBatch.Draw(PowerBackgroundTexture, new Rectangle(2350, 650, PowerBackgroundTexture.Width, PowerBackgroundTexture.Height), Color.White);
-            int power = (int)Math.Min(Math.Round(plant.core.PowerLevel, 0),99999);
+            int power = Math.Max(Math.Min((int)Math.Round(plant.core.PowerLevel, 0),99999),0);
             for (int i = 4; i >= 0; i--)
             {
                 var digit = power / (int)Math.Pow(10, i) % 10;
